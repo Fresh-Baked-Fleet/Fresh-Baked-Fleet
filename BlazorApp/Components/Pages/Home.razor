@@ -1,7 +1,35 @@
 ﻿@page "/"
+@inject IConfiguration Configuration
 
-<PageTitle>Home</PageTitle>
+<PageTitle>@(Configuration["SiteConfig:Title"] ?? "Home")</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1>@(Configuration["SiteConfig:Title"] ?? "Home")</h1>
+        <p class="lead">@(Configuration["SiteConfig:Description"] ?? "A modern Blazor website home page.")</p>
+    </div>
 
-Welcome to your new app.
+    <div class="card p-4 mb-4">
+        <h2>Site Overview</h2>
+        <p>@(Configuration["SiteConfig:WelcomeMessage"] ?? "Welcome to your new app.")</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-md-6">
+            <div class="card p-4 h-100">
+                <h3>Home Page Configuration</h3>
+                <p>This page is configured to load the site title, description, and welcome message from <code>appsettings.json</code>.</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card p-4 h-100">
+                <h3>Next Steps</h3>
+                <ul>
+                    <li>Update the text in <code>SiteConfig</code> to match your website.</li>
+                    <li>Add sections for team members, project goals, or features.</li>
+                    <li>Use the side menu to navigate to Counter and Weather pages.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

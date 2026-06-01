@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Impoeksa\\Desktop\\CSE325-Group-Project\\BlazorApp\\BlazorApp.csproj": {}
+    "C:\\Users\\Benita\\Desktop\\CSE325-Group-Project\\BlazorApp\\BlazorApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Impoeksa\\Desktop\\CSE325-Group-Project\\BlazorApp\\BlazorApp.csproj": {
+    "C:\\Users\\Benita\\Desktop\\CSE325-Group-Project\\BlazorApp\\BlazorApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Impoeksa\\Desktop\\CSE325-Group-Project\\BlazorApp\\BlazorApp.csproj",
+        "projectUniqueName": "C:\\Users\\Benita\\Desktop\\CSE325-Group-Project\\BlazorApp\\BlazorApp.csproj",
         "projectName": "BlazorApp",
-        "projectPath": "C:\\Users\\Impoeksa\\Desktop\\CSE325-Group-Project\\BlazorApp\\BlazorApp.csproj",
-        "packagesPath": "C:\\Users\\Impoeksa\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Impoeksa\\Desktop\\CSE325-Group-Project\\BlazorApp\\obj\\",
+        "projectPath": "C:\\Users\\Benita\\Desktop\\CSE325-Group-Project\\BlazorApp\\BlazorApp.csproj",
+        "packagesPath": "C:\\Users\\Benita\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Benita\\Desktop\\CSE325-Group-Project\\BlazorApp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Impoeksa\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Benita\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -47,7 +47,7 @@
             "Microsoft.AspNetCore.App.Internal.Assets": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.7, )",
+              "version": "[10.0.5, )",
               "autoReferenced": true
             }
           },
@@ -70,7 +70,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
