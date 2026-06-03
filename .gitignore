@@ -1,0 +1,4 @@
+bin/
+obj/
+.env
+freshbakedfleet.db
