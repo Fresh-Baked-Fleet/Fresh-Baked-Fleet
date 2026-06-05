@@ -1,4 +1,4 @@
-@page "/register"
+@page "/account/register"
 @using BlazorApp.Models
 @using BlazorApp.Data
 @using Microsoft.EntityFrameworkCore
@@ -69,24 +69,22 @@
       var newUser = new User
       {
         UserName = registerModel.EmailAddress,
-        FirstName = registerModel.FirstName,
-        LastName = registerModel.LastName,
         Email = registerModel.EmailAddress,
-        PasswordHash = registerModel.Password
+        LastName = registerModel.LastName,
+        FirstName = registerModel.FirstName,
+        EmailConfirmed = true
       };
 
       var result = await UserManager.CreateAsync(newUser, registerModel.Password);
 
       if (result.Succeeded)
       {
-        NavigationManager.NavigateTo("/login");
+        NavigationManager.NavigateTo("/account/login");
       }
       else
       {
         errorMessage = string.Join(" | ", result.Errors.Select(e => e.Description));
       }
-
-      NavigationManager.NavigateTo("/login");
     }
   }
 </div>

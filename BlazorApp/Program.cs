@@ -3,6 +3,7 @@ using BlazorApp.Data;
 using BlazorApp.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,4 +70,34 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+// app.MapPost("/account/login", async (SignInManager<User> signInManager, UserManager<User> userManager, [FromForm] string emailAddress, [FromForm] string password) =>
+// {
+//     Console.WriteLine("\n--- LOGIN DIAGNOSTICS ---");
+//     Console.WriteLine($"1. Email Received from Form: '{emailAddress}'");
+//     Console.WriteLine($"2. Password Received from Form: '{password}'");
+    
+//     var user = await userManager.FindByEmailAsync(emailAddress);
+//     if (user == null)
+//     {
+//         Console.WriteLine("3. User Status: NOT FOUND in database.");
+//     }
+//     else
+//     {
+//         Console.WriteLine($"3. User Status: FOUND (Id: {user.Id}).");
+        
+//         var isPasswordCorrect = await userManager.CheckPasswordAsync(user, password);
+//         Console.WriteLine($"4. Password Check: {isPasswordCorrect}");
+//         Console.WriteLine($"5. Email Confirmed: {user.EmailConfirmed}");
+//     }
+
+//     var result = await signInManager.PasswordSignInAsync(emailAddress, password, isPersistent: false, lockoutOnFailure: false);
+//     Console.WriteLine($"6. Final SignIn Result: {result}\n");
+    
+//     if (result.Succeeded)
+//     {
+//         return Results.Redirect("/");
+//     }
+    
+//     return Results.Redirect("/login?error=true"); 
+// });
 app.Run();

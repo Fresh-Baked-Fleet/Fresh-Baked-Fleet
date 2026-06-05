@@ -1,4 +1,4 @@
-@page "/login"
+@page "/account/login"
 @using BlazorApp.Data
 @using BlazorApp.Models
 @using Microsoft.AspNetCore.Identity
@@ -20,7 +20,7 @@
     <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
       <DataAnnotationsValidator />
 
-      <div class="mb-3">
+      @* <div class="mb-3">
         <label class="form-label">Email Address:</label>
         <InputText @bind-Value="loginModel.EmailAddress" type="email" class="form-control" />
         <ValidationMessage For="@(() => loginModel.EmailAddress)" class="text-danger" />
@@ -30,9 +30,27 @@
         <label class="form-label">Password:</label>
         <InputText @bind-Value="loginModel.Password" type="password" class="form-control" />
         <ValidationMessage For="@(() => loginModel.Password)" class="text-danger" />
+      </div> *@
+
+      <div class="mb-3">
+        <label class="form-label">Email Address:</label>
+        <input type="email" name="emailAddress" class="form-control" required />
+        <ValidationMessage For="@(() => loginModel.EmailAddress)" class="text-danger" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password:</label>
+        <input type="password" name="password" class="form-control" required" />
+        <ValidationMessage For="@(() => loginModel.Password)" class="text-danger" />
       </div>
 
       <button type="submit" class="btn btn-primary">Login</button>
+
+      <div class="mt-3">
+        <p>Don't have an account? Register here</p>
+      </div>
+
+      <link
     </EditForm>
   </div>
 
@@ -60,9 +78,17 @@
       {
         NavigationManager.NavigateTo("/");
       }
+      else if (result.IsNotAllowed)
+      {
+        errorMessage = "Login rejected: Account is not allowed (usually means unconfirmed email).";
+      }
+      else if (result.IsLockedOut)
+      {
+        errorMessage = "Login rejected: Account locked due to too many failed attempts.";
+      }
       else
       {
-        errorMessage = "Invalid login attempt.";
+        errorMessage = "Login rejected: Incorrect email or password.";
       }
     }
   }
