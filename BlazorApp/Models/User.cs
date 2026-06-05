@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace BlazorApp.Models
 {
-  public class User
+  public class User : IdentityUser
   {
-    public int Id { get; set; }
-    public string Username { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
   }
 }

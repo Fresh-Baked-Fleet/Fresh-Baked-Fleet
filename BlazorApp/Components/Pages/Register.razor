@@ -2,7 +2,8 @@
 @using BlazorApp.Models
 @using BlazorApp.Data
 @using Microsoft.EntityFrameworkCore
-@inject AppDbContext DbContext
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> UserManager
 @inject NavigationManager NavigationManager
 
 <PageTitle>Register</PageTitle>
@@ -16,7 +17,7 @@
   }
 
   <div class="col-md-4">
-    <EditForm Model="@registerModel" OnValidSubmit="HandleRegister">
+    <EditForm Model="@registerModel" OnValidSubmit="HandleRegister" FormName="registerForm">
       <DataAnnotationsValidator />
 
       <div class="mb-3">
@@ -42,8 +43,8 @@
 
       <div class="mb-3">
         <label class="form-label">Confirm Password:</label>
-        <ValidationMessage For="@(() => registerModel.Password)" class="text-danger" />
-        <InputText @bind-Value="registerModel.Password" type="password" class="form-control" />
+        <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="text-danger" />
+        <InputText @bind-Value="registerModel.ConfirmPassword" type="password" class="form-control" />
       </div>
 
       <button type="submit" class="btn btn-primary">Register Today!</button>
@@ -51,15 +52,41 @@
   </div>
 
   @code {
-    private RegisterModel registerModel = new();
+    [SupplyParameterFromForm]
+    private RegisterModel registerModel { get; set; } = default!;
 
     private string errorMessage = string.Empty;
+
+    protected override void OnInitialized()
+    {
+      registerModel ??= new();
+    }
 
     private async Task HandleRegister()
     {
       errorMessage = string.Empty;
 
-      @* var user = await DbContext.Users *@
+      var newUser = new User
+      {
+        UserName = registerModel.EmailAddress,
+        FirstName = registerModel.FirstName,
+        LastName = registerModel.LastName,
+        Email = registerModel.EmailAddress,
+        PasswordHash = registerModel.Password
+      };
+
+      var result = await UserManager.CreateAsync(newUser, registerModel.Password);
+
+      if (result.Succeeded)
+      {
+        NavigationManager.NavigateTo("/login");
+      }
+      else
+      {
+        errorMessage = string.Join(" | ", result.Errors.Select(e => e.Description));
+      }
+
+      NavigationManager.NavigateTo("/login");
     }
   }
 </div>

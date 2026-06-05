@@ -1,8 +1,9 @@
 @page "/login"
-@using BlazorApp.Models
 @using BlazorApp.Data
+@using BlazorApp.Models
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-@inject AppDbContext DbContext
+@inject SignInManager<User> SignInManager
 @inject NavigationManager NavigationManager
 
 <PageTitle>Login</PageTitle>
@@ -16,12 +17,13 @@
   }
 
   <div class="col-md-4">
-    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
       <DataAnnotationsValidator />
 
       <div class="mb-3">
-        <label class="form-label">Username:</label>
-        <InputText @bind-Value="loginModel.Username" class="form-control" />
+        <label class="form-label">Email Address:</label>
+        <InputText @bind-Value="loginModel.EmailAddress" type="email" class="form-control" />
+        <ValidationMessage For="@(() => loginModel.EmailAddress)" class="text-danger" />
       </div>
 
       <div class="mb-3">
@@ -35,23 +37,32 @@
   </div>
 
   @code {
-    private LoginModel loginModel = new();
+    [SupplyParameterFromForm]
+    private LoginModel loginModel { get; set; } = default!;
     private string errorMessage = string.Empty;
+
+    protected override void OnInitialized()
+    {
+      loginModel ??= new();
+    }
 
     private async Task HandleLogin()
     {
       errorMessage = string.Empty;
 
-      var user = await DbContext.Users
-          .FirstOrDefaultAsync(u => u.Username == loginModel.Username);
+      var result = await SignInManager.PasswordSignInAsync(
+        loginModel.EmailAddress,
+        loginModel.Password,
+        isPersistent: false,
+        lockoutOnFailure: false);
 
-      if (user != null && user.PasswordHash == loginModel.Password)
+      if (result.Succeeded)
       {
         NavigationManager.NavigateTo("/");
       }
       else
       {
-        errorMessage = "Invalid username or password.";
+        errorMessage = "Invalid login attempt.";
       }
     }
   }
