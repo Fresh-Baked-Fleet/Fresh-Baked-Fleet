@@ -1,0 +1,65 @@
+@page "/register"
+@using BlazorApp.Models
+@using BlazorApp.Data
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
+@inject NavigationManager NavigationManager
+
+<PageTitle>Register</PageTitle>
+
+<div class="main">
+  <h3>Register</h3>
+
+  @if (!string.IsNullOrEmpty(errorMessage))
+  {
+    <div class="alert alert-danger">@errorMessage</div>
+  }
+
+  <div class="col-md-4">
+    <EditForm Model="@registerModel" OnValidSubmit="HandleRegister">
+      <DataAnnotationsValidator />
+
+      <div class="mb-3">
+        <label class="form-label">First Name:</label>
+        <InputText @bind-Value="registerModel.FirstName" class="form-control" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Last Name:</label>
+        <InputText @bind-Value="registerModel.LastName" class="form-control" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email Address:</label>
+        <InputText @bind-Value="registerModel.EmailAddress" type="email" class="form-control" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password:</label>
+        <InputText @bind-Value="registerModel.Password" type="password" class="form-control" />
+        <ValidationMessage For="@(() => registerModel.Password)" class="text-danger" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Confirm Password:</label>
+        <ValidationMessage For="@(() => registerModel.Password)" class="text-danger" />
+        <InputText @bind-Value="registerModel.Password" type="password" class="form-control" />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Register Today!</button>
+    </EditForm>
+  </div>
+
+  @code {
+    private RegisterModel registerModel = new();
+
+    private string errorMessage = string.Empty;
+
+    private async Task HandleRegister()
+    {
+      errorMessage = string.Empty;
+
+      @* var user = await DbContext.Users *@
+    }
+  }
+</div>

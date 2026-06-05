@@ -5,6 +5,8 @@
 @inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 
+<PageTitle>Login</PageTitle>
+
 <div class="main">
   <h3>Login</h3>
   
@@ -12,7 +14,7 @@
   {
     <div class="alert alert-danger">@errorMessage</div>
   }
-  
+
   <div class="col-md-4">
     <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
       <DataAnnotationsValidator />
