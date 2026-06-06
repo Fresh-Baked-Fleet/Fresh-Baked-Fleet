@@ -1,5 +1,6 @@
 using BlazorApp.Components;
 using BlazorApp.Data;
+using BlazorApp.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,8 @@ builder.Services.AddRazorComponents()
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=freshbakedfleet.db"));
+
+builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
 
