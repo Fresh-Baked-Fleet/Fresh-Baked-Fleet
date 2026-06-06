@@ -1,0 +1,20 @@
+@using BlazorApp.Models
+
+<a class="product-card" href="@($"/products/{Product.Id}")">
+    <div class="product-image-container">
+        <img src="@Product.ImagePath" alt="@Product.Name" width="200" />
+        <span class=@("product-status" + (Product.Available ? " available" : " unavailable"))>
+            @(Product.Available ? "Available" : "Unavailable")
+        </span>
+    </div>
+
+    <h3><strong>@Product.Name</strong></h3>
+    <p>@Product.Description</p>
+    <p><strong>Price:</strong> @Product.Price.ToString("C")</p>
+    <p><strong>Weight:</strong> @Product.Weight kg</p>
+</a>
+
+@code {
+    [Parameter]
+    public Product Product { get; set; } = default!;
+}
