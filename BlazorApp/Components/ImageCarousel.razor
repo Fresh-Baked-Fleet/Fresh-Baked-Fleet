@@ -1,0 +1,61 @@
+@* Reusable Carousel Component *@
+
+<div id="@CarouselId" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-interval="3000">
+    @if (Slides.Any())
+    {
+        <!-- Indicators (hidden on mobile for less clutter) -->
+        <div class="carousel-indicators d-none d-lg-flex">
+            @for (int i = 0; i < Slides.Count; i++)
+            {
+                int index = i;
+                <button type="button" 
+                        data-bs-target="#@CarouselId" 
+                        data-bs-slide-to="@index" 
+                        class="@(index == 0 ? "active" : "")"
+                        @(index == 0 ? "aria-current=\"true\"" : "")
+                        aria-label="Slide @(index + 1)">
+                </button>
+            }
+        </div>
+
+        <!-- Slides Container -->
+        <div class="carousel-inner rounded shadow-sm">
+            @for (int i = 0; i < Slides.Count; i++)
+            {
+                var slide = Slides[i];
+                <CarouselSlide 
+                    ImageSrc="@slide.ImageSrc"
+                    ImageAlt="@slide.ImageAlt"
+                    Title="@slide.Title"
+                    Description="@slide.Description"
+                    IsActive="@(i == 0)" />
+            }
+        </div>
+
+        <!-- Navigation Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#@CarouselId" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#@CarouselId" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    }
+</div>
+
+@code {
+    public class CarouselSlideData
+    {
+        public string ImageSrc { get; set; } = string.Empty;
+        public string ImageAlt { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+
+    [Parameter]
+    public string CarouselId { get; set; } = "carousel";
+
+    [Parameter]
+    public List<CarouselSlideData> Slides { get; set; } = new();
+}

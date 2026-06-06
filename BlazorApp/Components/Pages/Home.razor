@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject IConfiguration Configuration
+@using BlazorApp.Components
 
 <PageTitle>@(Configuration["SiteConfig:Title"] ?? "Home")</PageTitle>
 
@@ -11,25 +12,68 @@
 
     <div class="card p-4 mb-4">
         <h2>Site Overview</h2>
-        <p>Welcome to your new app.</p>
+        <p>Fresh-Baked Fleet is a .NET-based B2B platform where users browse baking ingredients and submit order
+            requests for manual review by sales staff. It supports public visitors, customers, and admins, with secure
+            authentication, profile management, and full inventory CRUD operations, while focusing on desktop use and
+            excluding automated checkout and payments.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12">
+                @* Slideshow - managed through component data *@
+                <ImageCarousel CarouselId="homeCarousel" Slides="GetCarouselSlides()" />
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="card p-4 h-100">
+                    <h3>Want to know more about our collaboration</h3>
+                    <NavLink href="https://trello.com/b/2C1fs8nh/fresh-baked-fleet" target="_blank">
+                        <p>Learn about our work and team manage task on Trello</p>
+                    </NavLink>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card p-4 h-100">
+                    <h3>Next Steps</h3>
+                    <ul>
+                        <li>Create an account to access your personalized dashboard.</li>
+                        <li>View our products and services.</li>
+                        <li>Contact us for more information.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-12 col-md-6">
-            <div class="card p-4 h-100">
-                <h3>Home Page </h3>
-                <p>This page is configured to load the site title, description, and welcome message from <code>appsettings.json</code>.</p>
-            </div>
-        </div>
-        <div class="col-12 col-md-6">
-            <div class="card p-4 h-100">
-                <h3>Next Steps</h3>
-                <ul>
-                    <li>Update the text in <code>SiteConfig</code> to match your website.</li>
-                    <li>Add sections for team members, project goals, or features.</li>
-                    <li>Use the side menu to navigate to Counter and Weather pages.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+@code {
+    /// <summary>
+    /// Define carousel slides here - easy to add/remove/modify
+    /// </summary>
+    private List<ImageCarousel.CarouselSlideData> GetCarouselSlides()
+    {
+        return new()
+        {
+            new()
+            {
+                ImageSrc = "/images/dan-gold.jpg",
+                ImageAlt = "Dan Gold",
+                Title = "Fresh-Baked Fleet",
+                Description = "Warm goods served in style."
+            },
+            new()
+            {
+                ImageSrc = "/images/jan-antonin.jpg",
+                ImageAlt = "Jan Antonin",
+                Title = "Delicious Moments",
+                Description = "Perfect for sharing and tasting."
+            },
+            new()
+            {
+                ImageSrc = "/images/taylor-baked.jpg",
+                ImageAlt = "Taylor Baked",
+                Title = "Artisan Baking",
+                Description = "Handcrafted treats for every craving."
+            }
+        };
+    }
+}
