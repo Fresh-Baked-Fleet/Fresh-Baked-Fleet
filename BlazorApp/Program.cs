@@ -1,6 +1,7 @@
 using BlazorApp.Components;
 using BlazorApp.Data;
 using BlazorApp.Models;
+using BlazorApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +42,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddCascadingAuthenticationState();
+
+builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
 
