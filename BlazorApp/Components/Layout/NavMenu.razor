@@ -1,6 +1,6 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">BlazorApp</a>
+        <a class="navbar-brand" href="">Fresh-Baked Fleet</a>
     </div>
 </div>
 
@@ -30,6 +30,20 @@
             <NavLink class="nav-link" href="weather">
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
             </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <AuthorizeView>
+                <Authorized>
+                    <form action="/account/logout" method="post" data-enhance="false" onsubmit="return true;">
+                        <AntiforgeryToken />
+                        <button class="nav-link btn btn-link text-white"><span class="bi bi-logout-nav-menu" aria-hidden="true"></span>Logout</button>
+                    </form>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="/account/login" class="nav-link"><span class="bi bi-login-nav-menu" aria-hidden="true"></span>Login</a>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
     </nav>
 </div>
