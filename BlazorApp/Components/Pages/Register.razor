@@ -80,42 +80,43 @@
       <div>
         <p>Already have an account? <a href="/account/register" class="a-link">Log in!</a></p>
       </div>
+    </div>
   </div>
+</div>
 
-  @code {
-    [SupplyParameterFromForm]
-    private RegisterModel registerModel { get; set; } = default!;
+@code {
+  [SupplyParameterFromForm]
+  private RegisterModel registerModel { get; set; } = default!;
 
-    private string errorMessage = string.Empty;
+  private string errorMessage = string.Empty;
 
-    protected override void OnInitialized()
+  protected override void OnInitialized()
+  {
+    registerModel ??= new();
+  }
+
+  private async Task HandleRegister()
+  {
+    errorMessage = string.Empty;
+
+    var newUser = new User
     {
-      registerModel ??= new();
+      UserName = registerModel.EmailAddress,
+      Email = registerModel.EmailAddress,
+      LastName = registerModel.LastName,
+      FirstName = registerModel.FirstName,
+      EmailConfirmed = true
+    };
+
+    var result = await UserManager.CreateAsync(newUser, registerModel.Password);
+
+    if (result.Succeeded)
+    {
+      NavigationManager.NavigateTo("/account/login");
     }
-
-    private async Task HandleRegister()
+    else
     {
-      errorMessage = string.Empty;
-
-      var newUser = new User
-      {
-        UserName = registerModel.EmailAddress,
-        Email = registerModel.EmailAddress,
-        LastName = registerModel.LastName,
-        FirstName = registerModel.FirstName,
-        EmailConfirmed = true
-      };
-
-      var result = await UserManager.CreateAsync(newUser, registerModel.Password);
-
-      if (result.Succeeded)
-      {
-        NavigationManager.NavigateTo("/account/login");
-      }
-      else
-      {
-        errorMessage = string.Join(" | ", result.Errors.Select(e => e.Description));
-      }
+      errorMessage = string.Join(" | ", result.Errors.Select(e => e.Description));
     }
   }
-</div>
+}
