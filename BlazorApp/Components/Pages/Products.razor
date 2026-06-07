@@ -1,0 +1,34 @@
+@page "/products"
+
+@using BlazorApp.Services
+@using BlazorApp.Models
+
+@inject ProductService ProductService
+
+<h1 style="text-align: center; font-weight: bold; margin-bottom: 20px;">
+    Our Products
+</h1>
+
+@if (products == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="products-container">
+        @foreach (var product in products)
+        {
+            <ProductCard Product="product" />
+        }
+    </div>
+}
+
+@code {
+
+    private List<Product> products = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ProductService.GetProductsAsync();
+    }
+}

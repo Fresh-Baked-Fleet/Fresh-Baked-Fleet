@@ -1,4 +1,7 @@
 using BlazorApp.Components;
+using BlazorApp.Data;
+using BlazorApp.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,7 +9,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Add DbContext
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=freshbakedfleet.db"));
+
+builder.Services.AddScoped<ProductService>();
+
 var app = builder.Build();
+
+// seed the database and apply any pending migrations
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        db.Database.Migrate();
+
+        SeedData.Initialize(db);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Database initialization failed: {ex.Message}");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
