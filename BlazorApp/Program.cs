@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 
+LoadLocalEnv();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -15,8 +17,10 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add DbContext
+var connectionString = GetPostgresConnectionString(builder.Configuration);
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=freshbakedfleet.db"));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddIdentityCore<User>(options =>
 {
@@ -177,3 +181,54 @@ app.MapGet("/account/external-callback", async (SignInManager<User> signInManage
 });
 
 app.Run();
+
+static string GetPostgresConnectionString(IConfiguration configuration)
+{
+    var databaseUrl = configuration["DATABASE_URL"];
+    if (!string.IsNullOrWhiteSpace(databaseUrl))
+    {
+        if (!databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
+            !databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        {
+            return databaseUrl;
+        }
+
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':', 2);
+        var isLocalHost = uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
+            uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
+            uri.Host.Equals("::1", StringComparison.OrdinalIgnoreCase);
+
+        return new Npgsql.NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.Port > 0 ? uri.Port : 5432,
+            Database = uri.AbsolutePath.TrimStart('/'),
+            Username = Uri.UnescapeDataString(userInfo[0]),
+            Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty,
+            SslMode = isLocalHost ? Npgsql.SslMode.Disable : Npgsql.SslMode.Require
+        }.ConnectionString;
+    }
+
+    return configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' or DATABASE_URL is missing.");
+}
+
+static void LoadLocalEnv()
+{
+    var currentDirectory = Directory.GetCurrentDirectory();
+    var envPaths = new[]
+    {
+        Path.Combine(currentDirectory, ".env"),
+        Path.Combine(currentDirectory, "BlazorApp", ".env")
+    };
+
+    foreach (var envPath in envPaths)
+    {
+        if (File.Exists(envPath))
+        {
+            DotNetEnv.Env.Load(envPath);
+            return;
+        }
+    }
+}
