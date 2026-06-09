@@ -3,6 +3,7 @@
 // Framework Core.
 // It includes a DbSet for the Product model, allowing us to perform 
 // CRUD operations on products
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.Models;
 
@@ -10,7 +11,7 @@ using BlazorApp.Models;
 
 namespace BlazorApp.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<User>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
