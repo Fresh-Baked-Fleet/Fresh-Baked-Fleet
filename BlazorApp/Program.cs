@@ -85,33 +85,42 @@ app.MapRazorComponents<App>()
 
 app.MapPost("/account/login", async (SignInManager<User> signInManager, UserManager<User> userManager, [FromForm] string emailAddress, [FromForm] string password) =>
 {
-    Console.WriteLine("\n--- LOGIN DIAGNOSTICS ---");
-    Console.WriteLine($"1. Email Received from Form: '{emailAddress}'");
-    Console.WriteLine($"2. Password Received from Form: '{password}'");
-    
-    var user = await userManager.FindByEmailAsync(emailAddress);
-    if (user == null)
+    try
     {
-        Console.WriteLine("3. User Status: NOT FOUND in database.");
-    }
-    else
-    {
-        Console.WriteLine($"3. User Status: FOUND (Id: {user.Id}).");
+        // ABSOLUTELY REMOVE IN PRODUCTION - we don't want to expose the user's password in the console.
+        // Console.WriteLine("\n--- LOGIN DIAGNOSTICS ---");
+        // Console.WriteLine($"1. Email Received from Form: '{emailAddress}'");
+        // Console.WriteLine($"2. Password Received from Form: '{password}'");
         
-        var isPasswordCorrect = await userManager.CheckPasswordAsync(user, password);
-        Console.WriteLine($"4. Password Check: {isPasswordCorrect}");
-        Console.WriteLine($"5. Email Confirmed: {user.EmailConfirmed}");
-    }
+        var user = await userManager.FindByEmailAsync(emailAddress);
+        if (user == null)
+        {
+            Console.WriteLine("3. User Status: NOT FOUND in database.");
+        }
+        else
+        {
+            Console.WriteLine($"3. User Status: FOUND (Id: {user.Id}).");
+            
+            var isPasswordCorrect = await userManager.CheckPasswordAsync(user, password);
+            Console.WriteLine($"4. Password Check: {isPasswordCorrect}");
+            Console.WriteLine($"5. Email Confirmed: {user.EmailConfirmed}");
+        }
 
-    var result = await signInManager.PasswordSignInAsync(emailAddress, password, isPersistent: false, lockoutOnFailure: false);
-    Console.WriteLine($"6. Final SignIn Result: {result}\n");
-    
-    if (result.Succeeded)
+        var result = await signInManager.PasswordSignInAsync(emailAddress, password, isPersistent: false, lockoutOnFailure: false);
+        Console.WriteLine($"6. Final SignIn Result: {result}\n");
+        
+        if (result.Succeeded)
+        {
+            return Results.Redirect("/");
+        }
+        
+        return Results.Redirect("/account/login?error=true"); 
+    }
+    catch (Exception)
     {
-        return Results.Redirect("/");
+        return Results.Redirect("/account/login?error=database_offline");
     }
     
-    return Results.Redirect("/account/login?error=true"); 
 });
 
 app.MapPost("/account/logout", async (SignInManager<User> signInManager) =>
@@ -130,50 +139,57 @@ app.MapPost("/account/external-login", (SignInManager<User> signInManager, [From
 
 app.MapGet("/account/external-callback", async (SignInManager<User> signInManager, UserManager<User> userManager, string returnUrl = "/") =>
 {
-   var info = await signInManager.GetExternalLoginInfoAsync();
-   if (info == null) return Results.Redirect("/account/login?error=true");
-
-   var result = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
-   if (result.Succeeded)
+    try
     {
-        return Results.Redirect(returnUrl);
-    } 
+        var info = await signInManager.GetExternalLoginInfoAsync();
+        if (info == null) return Results.Redirect("/account/login?error=true");
 
-    var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-    var firstName = info.Principal.FindFirstValue(ClaimTypes.GivenName) ?? "";
-    var lastName = info.Principal.FindFirstValue(ClaimTypes.Surname) ?? "";
-
-    if (email != null)
-    {
-        var existingUser = await userManager.FindByEmailAsync(email);
-        if (existingUser != null)
+        var result = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+        if (result.Succeeded)
         {
-            await userManager.AddLoginAsync(existingUser, info);
-            await signInManager.SignInAsync(existingUser, isPersistent: false);
             return Results.Redirect(returnUrl);
-        }
-        else
-        {
-            var newUser = new User
-            {
-                UserName = email,
-                Email = email,
-                FirstName = firstName,
-                LastName = lastName,
-                EmailConfirmed = true
-            };
+        } 
 
-            var createResult = await userManager.CreateAsync(newUser);
-            if (createResult.Succeeded)
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        var firstName = info.Principal.FindFirstValue(ClaimTypes.GivenName) ?? "";
+        var lastName = info.Principal.FindFirstValue(ClaimTypes.Surname) ?? "";
+
+        if (email != null)
+        {
+            var existingUser = await userManager.FindByEmailAsync(email);
+            if (existingUser != null)
             {
-                await userManager.AddLoginAsync(newUser, info);
-                await signInManager.SignInAsync(newUser, isPersistent: false);
+                await userManager.AddLoginAsync(existingUser, info);
+                await signInManager.SignInAsync(existingUser, isPersistent: false);
                 return Results.Redirect(returnUrl);
             }
-        }
-    }
+            else
+            {
+                var newUser = new User
+                {
+                    UserName = email,
+                    Email = email,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    EmailConfirmed = true
+                };
 
-    return Results.Redirect("/account/login?error=true");
+                var createResult = await userManager.CreateAsync(newUser);
+                if (createResult.Succeeded)
+                {
+                    await userManager.AddLoginAsync(newUser, info);
+                    await signInManager.SignInAsync(newUser, isPersistent: false);
+                    return Results.Redirect(returnUrl);
+                }
+            }
+        }
+
+        return Results.Redirect("/account/login?error=true");
+    }
+    catch (Exception)
+    {
+        return Results.Redirect("/account/login?error=database_offline");
+    }
 });
 
 app.Run();
