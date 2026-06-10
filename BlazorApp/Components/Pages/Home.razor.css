@@ -22,6 +22,10 @@
     align-items: stretch;
 }
 
+.home-info-row {
+    width: 100%;
+}
+
 .home-carousel :deep(.carousel) {
     width: 100%;
 }
