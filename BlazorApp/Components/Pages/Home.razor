@@ -16,34 +16,62 @@
             requests for manual review by sales staff. It supports public visitors, customers, and admins, with secure
             authentication, profile management, and full inventory CRUD operations, while focusing on desktop use and
             excluding automated checkout and payments.</p>
+    </div>
+
+    <div class="row g-4 align-items-stretch home-hero-row">
+        <div class="col-12 col-lg-5 d-flex">
+            <div class="card p-4 mb-4 home-hero-card w-100">
+                <h2>
+                    Welcome to Fresh-Baked Fleet
+                    Lorem 30% off your first order with code <span class="text-primary">WELCOME30</span>!
+                </h2>
+                <p class="mb-4">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
+                    dolore.
+                </p>
+
+                <div class="home-hero-actions">
+                    <NavLink class="btn btn-primary" href="/weather">
+                        Weather Demo
+                    </NavLink>
+                    <NavLink class="btn btn-outline-primary" href="https://trello.com/b/2C1fs8nh/fresh-baked-fleet" target="_blank">
+                        Team Trello
+                    </NavLink>
+                    <a class="btn btn-outline-secondary" href="#next-steps">
+                        Next Steps
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <div class="row g-4">
-            <div class="col-12">
+        <div class="col-12 col-lg-7 d-flex">
+            <div class="home-carousel w-100">
                 @* Slideshow - managed through component data *@
                 <ImageCarousel CarouselId="homeCarousel" Slides="GetCarouselSlides()" />
             </div>
+        </div>
 
-            <div class="col-12 col-md-6">
-                <div class="card p-4 h-100">
-                    <h3>Want to know more about our collaboration</h3>
-                    <NavLink href="https://trello.com/b/2C1fs8nh/fresh-baked-fleet" target="_blank">
-                        <p>Learn about our work and team manage task on Trello</p>
-                    </NavLink>
-                </div>
+        <div class="col-12 col-md-6">
+            <div class="card p-4 h-100">
+                <h3>Want to know more about our collaboration</h3>
+                <NavLink href="https://trello.com/b/2C1fs8nh/fresh-baked-fleet" target="_blank">
+                    <p>Learn about our work and team manage task on Trello</p>
+                </NavLink>
             </div>
-            <div class="col-12 col-md-6">
-                <div class="card p-4 h-100">
-                    <h3>Next Steps</h3>
-                    <ul>
-                        <li>Create an account to access your personalized dashboard.</li>
-                        <li>View our products and services.</li>
-                        <li>Contact us for more information.</li>
-                    </ul>
-                </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card p-4 h-100" id="next-steps">
+                <h3>Next Steps</h3>
+                <ul>
+                    <li>Create an account to access your personalized dashboard.</li>
+                    <li>View our products and services.</li>
+                    <li>Contact us for more information.</li>
+                </ul>
             </div>
         </div>
     </div>
+</div>
+
 
 @code {
     /// <summary>
@@ -77,3 +105,4 @@
         };
     }
 }
+
