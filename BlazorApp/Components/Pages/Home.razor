@@ -10,17 +10,19 @@
         <p class="lead">A modern Fresh-Baked Fleet website home page.</p>
     </div>
 
-    <div class="card p-4 mb-4">
-        <h2>Site Overview</h2>
-        <p>Fresh-Baked Fleet is a .NET-based B2B platform where users browse baking ingredients and submit order
-            requests for manual review by sales staff. It supports public visitors, customers, and admins, with secure
-            authentication, profile management, and full inventory CRUD operations, while focusing on desktop use and
-            excluding automated checkout and payments.</p>
+    <div class="p-4 mb-4">
+        <h2></h2>
+        <div class="col-10 col-lg-12 h ">
+            <div class="hero-carousel">
+                @* Slideshow - managed through component data *@
+                <ImageCarousel CarouselId="heroCarousel" Slides="HeroCarouselSlides()" />
+            </div>
+        </div>
     </div>
 
     <div class="row g-4 align-items-stretch home-hero-row">
         <div class="col-12 col-lg-5 d-flex">
-            <div class="card p-4 mb-4 home-hero-card w-100">
+            <div class=" p-4 mb-4 home-hero-card w-100">
                 <h2>
                     Welcome to Fresh-Baked Fleet
                 </h2>
@@ -48,10 +50,9 @@
             </div>
         </div>
 
-        <div class="col-12 col-lg-7 d-flex">
-            <div class="home-carousel w-100">
-                @* Slideshow - managed through component data *@
-                <ImageCarousel CarouselId="homeCarousel" Slides="GetCarouselSlides()" />
+        <div class="col-10 col-lg-7 ">
+            <div class="home-carousel">
+                <img src="/images/dan-gold.jpg" alt="Dan Gold" class="carousel-image" />
             </div>
         </div>
 
@@ -97,6 +98,34 @@
             {
                 ImageSrc = "/images/dan-gold.jpg",
                 ImageAlt = "Dan Gold",
+                Title = "Fresh-Baked Fleet",
+                Description = "Warm goods served in style."
+            },
+            new()
+            {
+                ImageSrc = "/images/jan-antonin.jpg",
+                ImageAlt = "Jan Antonin",
+                Title = "Delicious Moments",
+                Description = "Perfect for sharing and tasting."
+            },
+            new()
+            {
+                ImageSrc = "/images/taylor-baked.jpg",
+                ImageAlt = "Taylor Baked",
+                Title = "Artisan Baking",
+                Description = "Handcrafted treats for every craving."
+            }
+        };
+    }
+
+        private List<ImageCarousel.CarouselSlideData> HeroCarouselSlides()
+    {
+        return new()
+        {
+            new()
+            {
+                ImageSrc = "/images/taylor-heery.jpg",
+                ImageAlt = "Taylor Heery",
                 Title = "Fresh-Baked Fleet",
                 Description = "Warm goods served in style."
             },
