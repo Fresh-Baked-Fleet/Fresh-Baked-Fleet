@@ -41,6 +41,10 @@
                 <strong>Quantity:</strong> @item.Quantity
             </div>
         </div>
+        <button class="delete"
+          @onclick="() => RemoveItem(item)">
+            ❌
+        </button>
 
     </div>
 }
@@ -74,14 +78,19 @@
         cart.Clear();
     }
     protected override async Task OnInitializedAsync()
-   {
-       products = await ProductService.GetProductsAsync();
-
-       if (products.Any())
     {
-        SelectedProductId = products.First().Id;
+        products = await ProductService.GetProductsAsync();
+
+        if (products.Any())
+        {
+            SelectedProductId = products.First().Id;
+        }
+       
     }
-   }
+     void RemoveItem(OrderItem item)
+        {
+            cart.Remove(item);
+        }
    void AddItem()
    {
     

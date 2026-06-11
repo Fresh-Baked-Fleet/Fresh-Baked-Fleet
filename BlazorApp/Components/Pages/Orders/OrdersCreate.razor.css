@@ -53,3 +53,9 @@ input{
 p{
     font-weight: bold;
 }
+.delete{
+    background-color: white;
+    color: red;
+    font-size: 24px;
+
+}
