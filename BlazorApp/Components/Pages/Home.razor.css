@@ -17,18 +17,10 @@
     min-width: 9.5rem;
 }
 
-.home-carousel {
-    display: flex;
-    align-items: stretch;
-}
-
 .home-info-row {
     width: 100%;
 }
 
-.home-carousel :deep(.carousel) {
-    width: 100%;
-}
 
 @media (max-width: 991.98px) {
     .home-hero-card {
