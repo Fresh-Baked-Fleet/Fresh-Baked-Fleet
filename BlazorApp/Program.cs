@@ -34,14 +34,14 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 })
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
-        ?? throw new InvalidOperationException("Google Client ID is missing.");
+// .AddGoogle(options =>
+//{
+//        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+//     ?? throw new InvalidOperationException("Google Client ID is missing.");
 
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
-        ?? throw new InvalidOperationException("Google Client Secret is missing.");
-    })
+//       options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+//        ?? throw new InvalidOperationException("Google Client Secret is missing.");
+//})
     .AddIdentityCookies();
 
 builder.Services.AddAuthorizationBuilder();
