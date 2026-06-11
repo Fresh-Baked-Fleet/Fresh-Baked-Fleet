@@ -1,4 +1,8 @@
-.navbar-toggler {
+.navbar {
+    background-color: #272724;
+}
+
+/* .navbar-toggler {
     appearance: none;
     cursor: pointer;
     width: 3.5rem;
@@ -115,4 +119,4 @@ a {
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
     }
-}
+} */
