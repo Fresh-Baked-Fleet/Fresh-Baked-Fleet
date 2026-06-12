@@ -139,7 +139,11 @@
       }
       else
       {
-        errorMessage = string.Join(" | ", result.Errors.Select(e => e.Description));
+        var filteredErrors = result.Errors
+        .Where(e => e.Code != "DuplicateUserName")
+        .Select(e => e.Description);
+
+        errorMessage = string.Join(" | ", filteredErrors);
       }
     }
     catch (Exception)
