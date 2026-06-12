@@ -2,13 +2,14 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    max-width: 1278px;
 }
 
 main {
     flex: 1;
 }
 
-.sidebar {
+.topbar {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
 }
 
@@ -47,16 +48,16 @@ main {
 }
 
 @media (min-width: 641px) {
-    .page {
+    /* .page {
         flex-direction: row;
     }
 
-    .sidebar {
+    .topbar {
         width: 250px;
         height: 100vh;
         position: sticky;
         top: 0;
-    }
+    } */
 
     .top-row {
         position: sticky;
