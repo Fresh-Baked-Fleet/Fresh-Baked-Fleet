@@ -5,9 +5,16 @@
 
 @inject ProductService ProductService
 
+<div class="product-details-actions">
+    <a class="back-to-products-button" href="/products">Back to Products</a>
+</div>
+
 <h1 style="text-align: center; font-weight: bold; margin-bottom: 20px;">
     Product Details
 </h1>
+
+
+
 @if (product == null)
 {
     <p>Loading...</p>
