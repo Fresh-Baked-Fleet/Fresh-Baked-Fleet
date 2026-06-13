@@ -27,7 +27,7 @@ h1 {
 
 .product-details-actions {
   max-width: 800px;
-  margin: 0 auto 16px;
+  margin-bottom: -50px;
 }
 
 .back-to-products-button {
