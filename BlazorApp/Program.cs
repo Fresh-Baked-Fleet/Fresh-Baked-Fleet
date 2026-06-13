@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Microsoft.Extensions.Options;
 
 LoadLocalEnv();
 
@@ -26,6 +25,7 @@ builder.Services.AddIdentityCore<User>(options =>
 {
     options.User.RequireUniqueEmail = true;
 })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager();
 
@@ -57,13 +57,17 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
         db.Database.Migrate();
 
-        SeedData.Initialize(db);
+        await SeedData.InitializeAsync(db, userManager, roleManager);
     }
     catch (Exception ex)
     {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "CRITICAL ERROR DURING DATABASE SEEDING");
         Console.WriteLine($"Database initialization failed: {ex.Message}");
     }
 }
@@ -90,12 +94,7 @@ app.MapRazorComponents<App>()
 app.MapPost("/account/login", async (SignInManager<User> signInManager, UserManager<User> userManager, [FromForm] string emailAddress, [FromForm] string password) =>
 {
     try
-    {
-        // ABSOLUTELY REMOVE IN PRODUCTION - we don't want to expose the user's password in the console.
-        // Console.WriteLine("\n--- LOGIN DIAGNOSTICS ---");
-        // Console.WriteLine($"1. Email Received from Form: '{emailAddress}'");
-        // Console.WriteLine($"2. Password Received from Form: '{password}'");
-        
+    { 
         var user = await userManager.FindByEmailAsync(emailAddress);
         if (user == null)
         {

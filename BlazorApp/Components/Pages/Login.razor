@@ -1,10 +1,9 @@
 @page "/account/login"
-@using BlazorApp.Data
 @using BlazorApp.Models
 @using Microsoft.AspNetCore.Identity
-@using Microsoft.EntityFrameworkCore
 @inject SignInManager<User> SignInManager
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Login</PageTitle>
 
@@ -23,7 +22,7 @@
     {
       <div class="alert alert-danger mb-4" role="alert">
         <span class="bi bi-exclamation-circle-fill me-2" aria-hidden="true"></span>
-        There was a problem authenticating your account. Please try again.
+        The email address or password you entered does not match our system. Please try again.
       </div>
     }
 
@@ -33,23 +32,20 @@
     }
 
     <div>
-      <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
-        <DataAnnotationsValidator />
-
+      <form action="/account/login" method="post" class="w-100">
+        <AntiforgeryToken />
         <div class="mb-3">
           <label class="form-label">Email Address:</label>
           <input type="email" name="emailAddress" class="form-control" required />
-          <ValidationMessage For="@(() => loginModel.EmailAddress)" class="text-danger" />
         </div>
 
         <div class="mb-3">
           <label class="form-label">Password:</label>
           <input type="password" name="password" class="form-control" required" />
-          <ValidationMessage For="@(() => loginModel.Password)" class="text-danger" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Login</button>
-      </EditForm>
+        <button type="submit" class="btn btn-earth shadow-sm w-100">Login</button>
+      </form>
 
       <div class="position-relative my-4">
         <div class="position-absolute top-50 start-0 w-100 border-top"></div>
@@ -78,8 +74,8 @@
           </button>
         </form>
 
-        <div>
-          <p>Don't have an account? <a href="/account/register" class="a-link">Register today!</a></p>
+        <div class="text-center mt-3">
+          <p class="mb-0">Don't have an account? <a href="/account/register" class="a-link">Register today!</a></p>
         </div>
       </div>
     </div>
@@ -94,36 +90,17 @@
   private LoginModel loginModel { get; set; } = default!;
   private string errorMessage = string.Empty;
 
-  protected override void OnInitialized()
+  protected override async Task OnInitializedAsync()
   {
     loginModel ??= new();
-  }
 
-  private async Task HandleLogin()
-  {
-    errorMessage = string.Empty;
+    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-    var result = await SignInManager.PasswordSignInAsync(
-      loginModel.EmailAddress,
-      loginModel.Password,
-      isPersistent: false,
-      lockoutOnFailure: false);
-
-    if (result.Succeeded)
+    if (authState.User.Identity?.IsAuthenticated == true)
     {
       NavigationManager.NavigateTo("/account");
+      return;
     }
-    else if (result.IsNotAllowed)
-    {
-      errorMessage = "Login rejected: Account is not allowed (usually means unconfirmed email).";
-    }
-    else if (result.IsLockedOut)
-    {
-      errorMessage = "Login rejected: Account locked due to too many failed attempts.";
-    }
-    else
-    {
-      errorMessage = "Login rejected: Incorrect email or password.";
-    }
+    
   }
 }
