@@ -5,6 +5,8 @@
 
 @inject ProductService ProductService
 
+<PageTitle>@(product?.Name ?? "Loading...")</PageTitle>
+
 <div class="product-details-actions">
     <a class="back-to-products-button" href="/products">Back to Products</a>
 </div>
