@@ -1,10 +1,9 @@
 @page "/account/register"
 @using BlazorApp.Models
-@using BlazorApp.Data
-@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<User> UserManager
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Register</PageTitle>
 
@@ -63,13 +62,13 @@
           <InputText @bind-Value="registerModel.ConfirmPassword" type="password" class="form-control" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Register Today!</button>
+        <button type="submit" class="btn btn-earth shadow-sm w-100">Register Today!</button>
       </EditForm>
 
       <div class="position-relative my-4">
         <div class="position-absolute top-50 start-0 w-100 border-top"></div>
         <div class="position-relative d-flex justify-content-center">
-          <span class="bg-white px-3 text-muted small">Or</span>
+          <span class="bg-white px-3 text-muted small" style="">Or</span>
         </div>
       </div>
 
@@ -94,7 +93,7 @@
         </form>
 
         <div>
-          <p>Already have an account? <a href="/account/register" class="a-link">Log in!</a></p>
+          <p>Already have an account? <a href="/account/login" class="a-link">Log in!</a></p>
         </div>
       </div>
     </div>
@@ -111,11 +110,18 @@
 
   private string errorMessage = string.Empty;
 
-  protected override void OnInitialized()
+  protected override async Task OnInitializedAsync()
   {
     registerModel ??= new();
-  }
 
+    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    
+    if (authState.User.Identity?.IsAuthenticated == true)
+    {
+      NavigationManager.NavigateTo("/");
+      return; 
+    }
+  }
   private async Task HandleRegister()
   {
     errorMessage = string.Empty;
