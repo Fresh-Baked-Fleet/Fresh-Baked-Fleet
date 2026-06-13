@@ -1,0 +1,12 @@
+<div class="d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+  <div class="p-4 rounded shadow-sm" style="width: 100%; max-width: 400px; background-color: RGB(253, 255, 250);">
+      
+    @ChildContent
+      
+  </div>
+</div>
+
+@code {
+  [Parameter]
+  public RenderFragment? ChildContent { get; set; }
+}

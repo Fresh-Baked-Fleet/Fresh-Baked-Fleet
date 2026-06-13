@@ -1,5 +1,9 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+    background-color: #FDFFF5;
+    min-height: 100vh;
 }
 
 a, .btn-link {
@@ -8,12 +12,12 @@ a, .btn-link {
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: #4A3B32;
+    border-color: #2b221d;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #4A3B32!;
 }
 
 .content {
@@ -63,4 +67,36 @@ h1:focus {
     text-decoration: none;
     color: black;
     font-weight: bold;
+}
+
+.btn-earth {
+    background-color: #6B4E31;
+    color: #ffffff;
+    border: 1px solid #6B4E31;
+    transition: all 0.2s ease-in-out;
+}
+.btn-earth:hover {
+    background-color: #553D26;
+    border-color: #553D26;
+    color: #ffffff;
+}
+
+.btn-outline-earth {
+    color: #6B4E31;
+    border-color: #6B4E31;
+    background-color: transparent;
+}
+.btn-outline-earth:hover {
+    background-color: #6B4E31;
+    color: #ffffff;
+}
+
+.table-earth-header th {
+    background-color: #2D2420 !important;
+    color: #F9F8F4 !important;
+    border-bottom: none;
+}
+
+.table-earth-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: #FAF9F6; 
 }
