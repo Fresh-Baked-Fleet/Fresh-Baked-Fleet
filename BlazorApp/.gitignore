@@ -1,0 +1,8 @@
+# Ignore all nested bin/ and obj/ directories
+**/bin/
+**/obj/
+
+.env
+freshbakedfleet.db
+*.db-shm
+*.db-wal
