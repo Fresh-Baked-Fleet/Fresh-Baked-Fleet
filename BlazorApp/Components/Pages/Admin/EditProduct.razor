@@ -71,7 +71,8 @@
           <div class="mb-3">
             <label class="form-label fw-bold" style="color: #4A3B32;">Product Image</label>
             <InputFile OnChange="HandleImageUpload" class="form-control" accept="image/png, image/jpeg, image/webp" />
-
+            <ValidationMessage For="@(() => editProduct.ImagePath)" class="text-danger mt-1" />
+            
             @if (!string.IsNullOrEmpty(editProduct.ImagePath))
             {
               <div class="mt-3">

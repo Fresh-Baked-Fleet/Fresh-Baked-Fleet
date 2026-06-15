@@ -15,11 +15,11 @@ public class Product
 
     [Required(ErrorMessage = "Please enter a price.")]
     [Range(0.01, 10000, ErrorMessage = "Price must be greater than zero.")]
-    public decimal Price { get; set; }
+    public decimal? Price { get; set; }
 
     [Required(ErrorMessage = "Please enter a weight.")]
     [Range(0.01, 10000, ErrorMessage = "Weight must be greater than zero.")]
-    public decimal Weight { get; set; }
+    public decimal? Weight { get; set; }
 
     [Required(ErrorMessage = "Please set an availability status.")]
     public bool Available { get; set; }
