@@ -1,0 +1,45 @@
+@page "/account"
+@using BlazorApp.Models
+@using Microsoft.AspNetCore.Identity
+
+@attribute [Authorize]
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<User> UserManager
+
+<PageTitle>My Account</PageTitle>
+
+<div class="main w-100">
+  <h3>My Account Dashboard</h3>
+  <hr />
+
+  @if (currentUser != null)
+  {
+    <div class="alert alert-success">
+      <h4 class="alert-heading">Welcome, @currentUser.FirstName!</h4>
+      <p>You are securely logged in.</p>
+      <hr>
+      <p class="mb-0"><strong>Full Name:</strong> @currentUser.FirstName @currentUser.LastName</p>
+      <p class="mb-0"><strong>Registered Email:</strong> @currentUser.Email</p>
+    </div>
+  }
+  else
+  {
+    <p><em>Loading user data...</em></p>
+  }
+</div>
+
+@code {
+  private User? currentUser;
+
+  protected override async Task OnInitializedAsync()
+  {
+    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    var userPrincipal = authState.User;
+
+    if (userPrincipal.Identity?.IsAuthenticated == true)
+    {
+      currentUser = await UserManager.GetUserAsync(userPrincipal);
+    }
+  }
+}

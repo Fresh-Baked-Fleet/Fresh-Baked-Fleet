@@ -1,19 +1,35 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
+<div class="page mx-auto w-100 d-flex flex-column">
+    <header class="site-header">
+        @* <div class="topbar"> *@
         <NavMenu />
-    </div>
+        @* </div> *@
+    </header>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+    <ErrorBoundary>
+        <ChildContent>
+            <main>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
+        </ChildContent>
+        <ErrorContent Context="ex">
+            <div class="mt-5 text-center">
+                <div class="card shadow-sm border-0 mx-auto" style="max-width: 500px; background-color: #FAF9F6; border-top: 4px solid #C06C5B !important;">
+                    <div class="card-body p-4">
+                        <i class="bi bi-exclamation-triangle-fill mb-3" style="font-size: 2.5rem; color: #C06C5B;"></i>
+                        <h4 style="color: #4A3B32;">Oops! Something went wrong.</h4>
+                        <p class="text-muted">An unexpected error occurred in this section of the bakery.</p>
+                        <button class="btn btn-earth mt-2" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Reload Page
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ErrorContent>
+    </ErrorBoundary>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>

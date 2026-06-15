@@ -1,0 +1,47 @@
+@page "/products/{id:int}"
+
+@using BlazorApp.Services
+@using BlazorApp.Models
+
+@inject ProductService ProductService
+
+<PageTitle>@(product?.Name ?? "Loading...")</PageTitle>
+
+<div class="product-details-actions">
+    <a class="back-to-products-button" href="/products">Back to Products</a>
+</div>
+
+<h1 style="text-align: center; font-weight: bold; margin-bottom: 20px;">
+    Product Details
+</h1>
+
+
+
+@if (product == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="product-details-container">
+        <img src="@product.ImagePath" alt="@product.Name" width="300" />
+        <h2><strong>@product.Name</strong></h2>
+        <p>@product.Description</p>
+        <p><strong>Price:</strong> @product.Price.ToString("C")</p>
+        <p><strong>Weight:</strong> @product.Weight kg</p>
+        <p><strong>Status:</strong> @(product.Available ? "Available" : "Unavailable")</p>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private Product? product;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        product = await ProductService.GetProductByIdAsync(Id);
+    }
+}
