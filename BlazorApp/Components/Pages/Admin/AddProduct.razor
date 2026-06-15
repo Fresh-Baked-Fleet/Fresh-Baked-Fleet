@@ -53,6 +53,12 @@
         </div>
 
         <div class="mb-3">
+          <label class="form-label fw-bold" style="color: #4A3B32;">Description</label>
+          <InputTextArea @bind-Value="newProduct.Description" Rows="4" class="form-control" placeholder="e.g. Fresh-Baked Fleet All-Vegetable Shortening comes in a 48 ounce pack. It is excellent for frying, and great for baking giving you higher, lighter-textured baked goods." />
+          <ValidationMessage For="@(() => newProduct.Description)" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
           <label class="form-label fw-bold" style="color: #4A3B32;">Product Image</label>
           <InputFile OnChange="HandleImageUpload" class="form-control" accept="image/png, image/jpeg, image/webp" />
 
