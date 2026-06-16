@@ -2,16 +2,7 @@
 
 <div class="carousel-item @(IsActive ? "active" : "")">
     <img src="@ImageSrc" class="carousel-image" alt="@ImageAlt" />
-    @if (!string.IsNullOrEmpty(Title))
-    {
-        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded px-3 py-2">
-            <h5>@Title</h5>
-            @if (!string.IsNullOrEmpty(Description))
-            {
-                <p>@Description</p>
-            }
-        </div>
-    }
+
 </div>
 
 @code {
@@ -20,12 +11,6 @@
 
     [Parameter]
     public string ImageAlt { get; set; } = string.Empty;
-
-    [Parameter]
-    public string Title { get; set; } = string.Empty;
-
-    [Parameter]
-    public string Description { get; set; } = string.Empty;
 
     [Parameter]
     public bool IsActive { get; set; } = false;

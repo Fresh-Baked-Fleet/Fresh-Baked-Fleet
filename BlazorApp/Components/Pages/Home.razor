@@ -1,90 +1,116 @@
 ﻿@page "/"
 @inject IConfiguration Configuration
 @using BlazorApp.Components
+@using BlazorApp.Services
+@using BlazorApp.Models
+@inject ProductService ProductService
 
 <PageTitle>@(Configuration["SiteConfig:Title"] ?? "Home")</PageTitle>
 
-<div class="container my-5">
-    <div class="text-center mb-5">
-        <h1>Fresh-Baked Fleet</h1>
-        <p class="lead">A modern Fresh-Baked Fleet website home page.</p>
-    </div>
+<div class="home-page">
+    <section class="hero-banner">
+        <div class="hero-banner-inner">
+            <h1>Fresh-Baked Fleet</h1>
+        </div>
+    </section>
 
-    <div class="p-4 mb-4">
-        <h2></h2>
-        <div class="col-10 col-lg-12 h ">
+    <section class=" hero-carousel-section py-4">
+        <div class="container px-0">
             <div class="hero-carousel">
                 @* Slideshow - managed through component data *@
                 <ImageCarousel CarouselId="heroCarousel" Slides="HeroCarouselSlides()" />
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="row g-4 align-items-stretch home-hero-row">
-        <div class="col-12 col-lg-5 d-flex">
-            <div class=" p-4 mb-4 home-hero-card w-100">
-                <h2>
-                    Welcome to Fresh-Baked Fleet
-                </h2>
-                <h4>
-                    Welcome to Fresh-Baked Fleet
-                    Lorem 30% off your first order with code <span class="text-primary">WELCOME30</span>!
-                    Your one-stop shop for all things baking.
-                </h4>
-                <p class="mb-4">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-                    dolore.
-                </p>
+    <section class="container">
+        <div class="row justify-content-center g-4 align-items-stretch home-hero-row">
+            <div class="col-12 col-lg-10">
+                <div class="home-hero-card">
+                    <h2 class="display-5 fw-bold text-center">
+                        Welcome to Fresh-Baked Fleet
+                    </h2>
+                    <h4 class="lead text-center">
+                        The best place to obtain your ingredients for perfectly baked goods.
+                    </h4>
 
-                <div class="home-hero-actions">
-                    <NavLink class="btn btn-primary" href="/weather">
-                        Weather Demo
-                    </NavLink>
-                    <NavLink class="btn btn-outline-primary" href="https://trello.com/b/2C1fs8nh/fresh-baked-fleet" target="_blank">
-                        Team Trello
-                    </NavLink>
-                    <a class="btn btn-outline-secondary" href="#next-steps">
-                        Next Steps
-                    </a>
+                    <div class="home-hero-actions">
+                        <NavLink class="btn btn-primary" href="/products">
+                            Our products
+                        </NavLink>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="col-10 col-lg-7 ">
-            <div class="home-carousel">
-                <img src="/images/mae-mu.jpg" alt="Mae Mu" class="carousel-image" />
+    <section class="container">
+        <h2 class="display-5 fw-bold text-center mt-5 mb-4">
+            Featured Products
+        </h2>
+        <div class="products-container">
+            @foreach (var product in products)
+            {
+                <ProductCard Product="product" />
+            }
+        </div>
+    </section>
+
+    <h2 class="display-4 fw-bold text-center mt-5 mb-4" style="color: #4a3b32;">
+        Learn About Us!
+    </h2>
+
+    <section class="container">
+        <div class="row justify-content-center g-4 align-items-stretch home-hero-row">
+            <div class="col-12 col-lg-10">
+                <div class="home-hero-card">
+                    <h2 class="display-5 fw-bold text-center">
+                        Our Mission
+                    </h2>
+                    <h4 class="lead text-center">
+                        To provide the freshest, highest-quality ingredients to our customers, ensuring that every baked
+                        creation is a masterpiece of flavor and texture.
+                    </h4>
+                </div>
             </div>
         </div>
+    </section>
 
-        <div class="flex-column flex-lg-row d-flex home-info-row">
-            <div class="card p-4 h-100" mb-4>
-                <h3>Want to know more about our collaboration</h3>
-                <NavLink href="https://trello.com/b/2C1fs8nh/fresh-baked-fleet" target="_blank">
-                    <p>Learn about our work and team manage task on Trello</p>
-                </NavLink>
-            </div>
-        
-            <div class="card p-4 h-100" mb-4 id="next-steps">
-                <h3>Next Steps</h3>
-                <ul>
-                    <li>Create an account to access your personalized dashboard.</li>
-                    <li>View our products and services.</li>
-                    <li>Contact us for more information.</li>
-                </ul>
-            </div>
-        
-            <div class="card p-4 h-100" mb-4 id="next-steps">
-                <h3>Next Steps</h3>
-                <ul>
-                    <li>Create an account to access your personalized dashboard.</li>
-                    <li>View our products and services.</li>
-                    <li>Contact us for more information.</li>
-                </ul>
+    <section class="container">
+        <div class="row justify-content-center g-4 align-items-stretch home-hero-row">
+            <div class="col-12 col-lg-10">
+                <div class="home-hero-card">
+                    <h2 class="display-5 fw-bold text-center">
+                        Our Story
+                    </h2>
+                    <h4 class="lead text-center">
+                        Fresh-Baked Fleet was born out of a passion for baking and a desire to share that passion with
+                        others. We understand the importance of quality ingredients in creating delicious baked goods,
+                        and we are committed to sourcing only the best for our customers.
+                    </h4>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <section class="container">
+        <div class="row justify-content-center g-4 align-items-stretch home-hero-row">
+            <div class="col-12 col-lg-10">
+                <div class="home-hero-card">
+                    <h2 class="display-5 fw-bold text-center">
+                        Our Vision
+                    </h2>
+                    <h4 class="lead text-center">
+                        To be the leading supplier of premium baking ingredients, for your business. So you can focus on
+                        what you do best - baking delicious treats for your customers.
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
 </div>
-
 
 @code {
     /// <summary>
@@ -125,7 +151,7 @@
         };
     }
 
-        private List<ImageCarousel.CarouselSlideData> HeroCarouselSlides()
+    private List<ImageCarousel.CarouselSlideData> HeroCarouselSlides()
     {
         return new()
         {
@@ -157,14 +183,14 @@
                 Title = "Artisan Baking",
                 Description = "Handcrafted treats for every craving."
             },
-                new() 
+                new()
              {
                 ImageSrc = "/images/lindsay-cotter.jpg",
                 ImageAlt = "Taylor Baked",
                 Title = "Artisan Baking",
                 Description = "Handcrafted treats for every craving."
             },
-                new()   
+                new()
              {
                 ImageSrc = "/images/no-revisions.jpg",
                 ImageAlt = "Mae Mu",
@@ -173,6 +199,12 @@
             }
 
         };
+    }
+    private List<Product> products = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ProductService.GetRandomProductsAsync(2);
     }
 }
 
