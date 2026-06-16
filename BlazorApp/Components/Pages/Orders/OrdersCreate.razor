@@ -5,6 +5,7 @@
 @inject ProductService ProductService
 @rendermode InteractiveServer
 
+<PageTitle>Create Order</PageTitle>
 
 <div class="orders">
 <h3>Create Order</h3>
@@ -36,7 +37,7 @@
             <p class="mb-1">@item.Product.Description</p>
 
             <div>
-                <strong>Price:</strong> @item.Product.Price € <br />
+                <strong>Price:</strong> @item.Product.Price?.ToString("C") <br />
                 <strong>Weight:</strong> @item.Product.Weight kg <br />
                 <strong>Quantity:</strong> @item.Quantity
             </div>
