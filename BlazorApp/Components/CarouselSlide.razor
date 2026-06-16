@@ -1,0 +1,17 @@
+@* Represents a single carousel slide *@
+
+<div class="carousel-item @(IsActive ? "active" : "")">
+    <img src="@ImageSrc" class="carousel-image" alt="@ImageAlt" />
+
+</div>
+
+@code {
+    [Parameter]
+    public string ImageSrc { get; set; } = string.Empty;
+
+    [Parameter]
+    public string ImageAlt { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool IsActive { get; set; } = false;
+}

@@ -1,6 +1,0 @@
-bin/
-obj/
-.env
-freshbakedfleet.db
-*.db-shm
-*.db-wal
