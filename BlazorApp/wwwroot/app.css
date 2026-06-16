@@ -100,3 +100,7 @@ h1:focus {
 .table-earth-striped > tbody > tr:nth-of-type(odd) > * {
     background-color: #FAF9F6; 
 }
+
+.disabledText:hover {
+    cursor: not-allowed;
+}

@@ -21,12 +21,13 @@
       <hr>
       <p class="mb-0"><strong>Full Name:</strong> @currentUser.FirstName @currentUser.LastName</p>
       <p class="mb-0"><strong>Registered Email:</strong> @currentUser.Email</p>
+      <p class="mb-0"><strong>Registered Phone Number:</strong> @FormatPhoneNumber(currentUser.PhoneNumber)</p>
       <p class="mb-0"><strong>Residential Address:</strong> @GetFullAddress()</p>
-      <p class="mb-0"><strong>Contact Preference:</strong> @currentUser.Preference</p>
+      <p class="mb-0"><strong>Contact Preference:</strong> @(currentUser.Preference == ContactPreference.PhoneNumber ? "Phone Number" : "Email")</p>
       <hr />
       <div class="d-flex flex-wrap gap-2 mt-3">
         <a class="btn btn-earth shadow-sm" href="/account/edit">Edit Account Details</a>
-        <a class="btn btn-outline-secondary" href="/">Back to Shop</a>
+        <a class="btn btn-outline-secondary" href="/products">Back to Shop</a>
       </div>
     </div>
   }
@@ -42,7 +43,7 @@
   private string GetFullAddress()
   {
     if (currentUser == null) return "Not provided";
-    var parts = new[] { currentUser.ResidentialAddress, currentUser.StreetAddress, currentUser.City, currentUser.State, currentUser.ZipCode };
+    var parts = new[] { currentUser.StreetAddress, currentUser.City, currentUser.State, currentUser.ZipCode };
     var nonEmpty = parts.Where(p => !string.IsNullOrWhiteSpace(p)).ToArray();
     return nonEmpty.Length == 0 ? "Not provided" : string.Join(", ", nonEmpty);
   }
@@ -50,6 +51,20 @@
   protected override async Task OnInitializedAsync()
   {
     await LoadUserData();
+  }
+
+  private string FormatPhoneNumber(string? phone)
+  {
+    if (string.IsNullOrWhiteSpace(phone)) return "Not provided";
+
+    var digits = new string(phone.Where(char.IsDigit).ToArray());
+
+    if (digits.Length == 10)
+    {
+      return long.Parse(digits).ToString("(###) ###-####");
+    }
+
+    return phone;
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)

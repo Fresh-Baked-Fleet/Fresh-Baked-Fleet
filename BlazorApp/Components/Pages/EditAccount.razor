@@ -6,6 +6,8 @@
 
 @attribute [Authorize]
 
+@rendermode InteractiveServer
+
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<User> UserManager
 @inject NavigationManager NavigationManager
@@ -41,25 +43,29 @@
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">First Name</label>
-            <InputText @bind-Value="editModel.FirstName" class="form-control" />
+            <InputText @bind-Value="editModel!.FirstName" class="form-control" />
             <ValidationMessage For="@(() => editModel.FirstName)" class="text-danger" />
           </div>
 
           <div class="col-md-6">
             <label class="form-label">Last Name</label>
-            <InputText @bind-Value="editModel.LastName" class="form-control" />
+            <InputText @bind-Value="editModel!.LastName" class="form-control" />
             <ValidationMessage For="@(() => editModel.LastName)" class="text-danger" />
           </div>
 
           <div class="col-12">
-            <label class="form-label">Email Address</label>
-            <InputText @bind-Value="editModel.EmailAddress" type="email" class="form-control" disabled />
+            <label class="form-label">Email Address 🔒</label>
+            <InputText @bind-Value="editModel!.EmailAddress" type="email" class="form-control disabledText" style="color: gray;" disabled />
             <ValidationMessage For="@(() => editModel.EmailAddress)" class="text-danger" />
+            <span class="fst-italic" style="font-size: 0.8rem;">
+              Email cannot be changed for security reasons.
+            </span>
           </div>
 
-          <div class="col-12">
-            <label class="form-label">Residential Address</label>
-            <InputText @bind-Value="editModel.ResidentialAddress" class="form-control" />
+          <div class="col-md-12 mb-3">
+            <label class="form-label">Phone Number</label>
+            <InputText @bind-Value="editModel.PhoneNumber" type="tel" class="form-control" />
+            <ValidationMessage For="@(() => editModel.PhoneNumber)" class="text-danger" />
           </div>
 
           <div class="col-12">
@@ -83,22 +89,31 @@
           </div>
 
           <div class="col-12">
-            <label class="form-label">Preferred Contact Method</label>
-            <InputSelect @bind-Value="editModel.ContactPreference" TValue="ContactPreference" class="form-select">
-              <option value="@ContactPreference.Email">@ContactPreference.Email</option>
-              <option value="@ContactPreference.PhoneNumber">@ContactPreference.PhoneNumber</option>
-            </InputSelect>
+            <label class="form-label d-block mb-2">Preferred Contact Method</label>
+            <InputRadioGroup @bind-Value="editModel.ContactPreference">
+              
+              <div class="form-check form-check-inline">
+                <InputRadio Value="@ContactPreference.Email" class="form-check-input" id="contactEmail" />
+                <label class="form-check-label" for="contactEmail">Email</label>
+              </div>
+              
+              <div class="form-check form-check-inline">
+                <InputRadio Value="@ContactPreference.PhoneNumber" class="form-check-input" id="contactPhone" />
+                <label class="form-check-label" for="contactPhone">Phone Number</label>
+              </div>
+
+            </InputRadioGroup>
           </div>
 
           <div class="col-12">
             <label class="form-label">New Password (leave blank to keep current)</label>
-            <InputText @bind-Value="editModel.Password" type="password" class="form-control" />
+            <InputText @bind-Value="editModel.Password" type="password" class="form-control" autocomplete="new-password" />
             <ValidationMessage For="@(() => editModel.Password)" class="text-danger" />
           </div>
 
           <div class="col-12">
             <label class="form-label">Confirm New Password</label>
-            <InputText @bind-Value="editModel.ConfirmPassword" type="password" class="form-control" />
+            <InputText @bind-Value="editModel.ConfirmPassword" type="password" class="form-control" autocomplete="new-password" />
             <ValidationMessage For="@(() => editModel.ConfirmPassword)" class="text-danger" />
           </div>
         </div>
@@ -117,7 +132,9 @@
   private bool isSaving;
   private string statusMessage = string.Empty;
   private User? currentUser;
-  private EditAccountModel editModel = new();
+
+  [SupplyParameterFromForm]
+  private EditAccountModel? editModel { get; set; }
 
   protected override async Task OnInitializedAsync()
   {
@@ -145,7 +162,7 @@
         FirstName = currentUser.FirstName,
         LastName = currentUser.LastName,
         EmailAddress = currentUser.Email ?? string.Empty,
-        ResidentialAddress = currentUser.ResidentialAddress,
+        PhoneNumber = currentUser.PhoneNumber ?? string.Empty,
         StreetAddress = currentUser.StreetAddress,
         City = currentUser.City,
         State = currentUser.State,
@@ -171,15 +188,15 @@
     isSaving = true;
     try
     {
-      currentUser.FirstName = editModel.FirstName.Trim();
-      currentUser.LastName = editModel.LastName.Trim();
+      currentUser.FirstName = (editModel!.FirstName ?? string.Empty).Trim();
+      currentUser.LastName = (editModel!.LastName ?? string.Empty).Trim();
       // Do not allow changing the email address for security reasons.
-      currentUser.ResidentialAddress = (editModel.ResidentialAddress ?? string.Empty).Trim();
-      currentUser.StreetAddress = (editModel.StreetAddress ?? string.Empty).Trim();
-      currentUser.City = (editModel.City ?? string.Empty).Trim();
-      currentUser.State = (editModel.State ?? string.Empty).Trim();
-      currentUser.ZipCode = (editModel.ZipCode ?? string.Empty).Trim();
-      currentUser.Preference = editModel.ContactPreference;
+      currentUser.StreetAddress = (editModel!.StreetAddress ?? string.Empty).Trim();
+      currentUser.PhoneNumber = (editModel!.PhoneNumber ?? string.Empty).Trim();
+      currentUser.City = (editModel!.City ?? string.Empty).Trim();
+      currentUser.State = (editModel!.State ?? string.Empty).Trim();
+      currentUser.ZipCode = (editModel!.ZipCode ?? string.Empty).Trim();
+      currentUser.Preference = editModel!.ContactPreference;
 
       // If the user provided a new password, update it (remove existing password then add the new one).
       if (!string.IsNullOrWhiteSpace(editModel.Password))
@@ -263,7 +280,8 @@
     [EmailAddress(ErrorMessage = "Enter a valid email address.")]
     public string EmailAddress { get; set; } = string.Empty;
 
-    public string ResidentialAddress { get; set; } = string.Empty;
+    [Phone(ErrorMessage = "Please enter a valid phone number.")]
+    public string PhoneNumber { get; set; } = string.Empty;
     public string StreetAddress { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
