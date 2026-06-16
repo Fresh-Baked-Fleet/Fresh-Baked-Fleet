@@ -4,18 +4,21 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 
+@rendermode InteractiveServer
+
 @attribute [Authorize(Roles = "Admin, Manager")]
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<User> UserManager
 @inject AppDbContext DbContext
+@inject NavigationManager NavigationManager
 
 <PageTitle>Inventory Management</PageTitle>
 
 <div class="main mx-auto mt-4 " style="max-width: 1000px;">
   <div class="d-flex justify-content-between align-items-end mb-3">
     <h3 class="mb-0" style="color: #4A3B32;">Inventory Management</h3>
-    <button class="btn btn-sm btn-earth shadow-sm">
+    <button class="btn btn-sm btn-earth shadow-sm" @onclick='() => NavigationManager.NavigateTo("/admin/inventory/add")'>
       <i class="bi bi-plus-lg"></i> Add New Product
     </button>
   </div>
@@ -36,12 +39,25 @@
       <i class="bi bi-exclamation-triangle-fill me-2" style="color: #C06C5B;"></i> @fetchError
     </div>
   }
+  else if (!string.IsNullOrEmpty(errorMessage))
+  {
+    <div class="alert shadow-sm mb-4" style="background-color: #fff; border-left: 4px solid #C06C5B; color: #4A3B32;">
+      <i class="bi bi-exclamation-triangle-fill me-2" style="color: #C06C5B;"></i> @errorMessage
+    </div>
+  }    
   else if (!inventoryProducts.Any())
   {
     <div class="alert alert-info">No products found in the database.</div> 
   }
   else 
   {
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+      <div class="alert shadow-sm mb-4" style="background-color: #FAF9F6; border-left: 4px solid #6B8A47; color: #4A3B32;">
+        <i class="bi bi-check-circle-fill me-2" style="color: #6B8A47;"></i> @successMessage
+      </div>
+    }
+
     <div class="card shadow-sm border-0">
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -62,7 +78,7 @@
               {
                 <tr>
                   <td class="ps-4 fw-medium" style="color: #4A3B32;">@product.Name</td>
-                  <td>@product.Price.ToString("C")</td>
+                  <td>@product.Price?.ToString("C")</td>
                   <td>@product.Weight</td>
                   
                   <td class="text-center">
@@ -79,7 +95,7 @@
                   <td class="pe-4 text-end">
                     <div class="btn-group btn-group-sm" role="group">
                       <button class="btn btn-outline-earth" @onclick="() => EditProduct(product.Id)">
-                        <i class="bi bi-pencil"></i> Edit
+                        <i class="bi bi-pencil"></i>
                       </button>
                       <button class="btn btn-outline-danger" @onclick="() => DeleteProduct(product.Id)">
                         <i class="bi bi-trash"></i>
@@ -100,6 +116,8 @@
 @code {
   private List<Product>? inventoryProducts;
   private string? fetchError;
+  private string? errorMessage;
+  private string? successMessage;
 
   protected override async Task OnInitializedAsync()
   {
@@ -116,12 +134,30 @@
   }
 
   private void EditProduct(int productId)
-  {
-    Console.WriteLine($"Editing product with ID: {productId}");
-  }
+{
+  NavigationManager.NavigateTo($"/admin/inventory/edit/{productId}");
+}
 
   private async Task DeleteProduct(int productId)
   {
-    Console.WriteLine($"Attempting to delete product with ID: {productId}");
+    try
+    {
+      errorMessage = null;
+
+      var productToDelete = await DbContext.Products.FindAsync(productId);
+
+      if (productToDelete != null)
+      {
+        DbContext.Products.Remove(productToDelete);
+        await DbContext.SaveChangesAsync();
+        inventoryProducts?.Remove(productToDelete);
+
+        successMessage = "Product successfully deleted.";
+      }
+    }
+    catch (Exception)
+    {
+      errorMessage = "We couldn't delete this product due to a database connection issue. Please try clicking delete again.";
+    }
   }
 }

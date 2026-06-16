@@ -1,0 +1,142 @@
+@page "/admin/inventory/add"
+@using BlazorApp.Data
+@using BlazorApp.Models
+
+@rendermode InteractiveServer
+
+@attribute [Authorize(Roles = "Admin, Manager")]
+
+@inject AppDbContext DbContext
+@inject NavigationManager NavigationManager
+
+<PageTitle>Add New Product</PageTitle>
+
+<div class="mx-auto mt-4" style="max-width: 800px;">
+    
+  <div class="d-flex align-items-center mb-4">
+    <a href="/admin/inventory" class="text-decoration-none p-0 me-3" style="color: #6B4E31;">
+      <i class="bi bi-arrow-left fs-4"></i>
+    </a>
+    <h3 class="mb-0" style="color: #4A3B32;">Add New Product</h3>
+  </div>
+
+  <div class="card shadow-sm border-0" style="background-color: #FAF9F6;">
+    <div class="card-body p-4">
+
+      @if (!string.IsNullOrEmpty(errorMessage))
+      {
+        <div class="alert shadow-sm mb-4" style="background-color: #fff; border-left: 4px solid #C06C5B; color: #4A3B32;">
+          <i class="bi bi-exclamation-triangle-fill me-2" style="color: #C06C5B;"></i> @errorMessage
+        </div>
+      }
+      
+      <EditForm Model="newProduct" OnValidSubmit="SaveProduct" FormName="AddProductForm">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+          <label class="form-label fw-bold" style="color: #4A3B32;">Product Name</label>
+          <InputText @bind-Value="newProduct.Name" class="form-control" placeholder="e.g. Shortening" />
+          <ValidationMessage For="@(() => newProduct.Name)" class="text-danger" />
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold" style="color: #4A3B32;">Price ($)</label>
+            <InputNumber @bind-Value="newProduct.Price" class="form-control" placeholder="0.00" />
+            <ValidationMessage For="@(() => newProduct.Price)" class="text-danger" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold" style="color: #4A3B32;">Weight</label>
+            <InputNumber @bind-Value="newProduct.Weight" class="form-control" placeholder="e.g. 1.5" />
+            <ValidationMessage For="@(() => newProduct.Weight)" class="text-danger" />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold" style="color: #4A3B32;">Description</label>
+          <InputTextArea @bind-Value="newProduct.Description" Rows="4" class="form-control" placeholder="e.g. Fresh-Baked Fleet All-Vegetable Shortening comes in a 48 ounce pack. It is excellent for frying, and great for baking giving you higher, lighter-textured baked goods." />
+          <ValidationMessage For="@(() => newProduct.Description)" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold" style="color: #4A3B32;">Product Image</label>
+          <InputFile OnChange="HandleImageUpload" class="form-control" accept="image/png, image/jpeg, image/webp" />
+          <ValidationMessage For="@(() => newProduct.ImagePath)" class="text-danger mt-1" />
+
+          @if (!string.IsNullOrEmpty(newProduct.ImagePath))
+          {
+            <div class="mt-3">
+              <p class="text-muted small mb-1">Preview:</p>
+              <img src="@newProduct.ImagePath" alt="Preview" class="img-thumbnail" style="max-height: 200px; border-radius: 8px;" />
+            </div>
+          }
+        </div>
+
+        <div class="form-check form-switch mb-4 mt-3">
+          <InputCheckbox @bind-Value="newProduct.Available" class="form-check-input" id="availabilitySwitch" />
+          <label class="form-check-label fw-bold" for="availabilitySwitch" style="color: #4A3B32;">
+            Available for Sale
+          </label>
+        </div>
+
+        <hr />
+        
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <a href="/admin/inventory" class="btn btn-outline-secondary">Cancel</a>
+          <button type="submit" class="btn btn-earth px-4">Save Product</button>
+        </div>
+
+      </EditForm>
+
+    </div>
+  </div>
+</div>
+
+@code {
+  private Product newProduct { get; set; } = new Product { Available = true };
+
+  private string? errorMessage;
+
+  private async Task HandleImageUpload(InputFileChangeEventArgs e)
+  {
+    var file = e.File;
+
+    if (file != null)
+    {
+      try
+      {
+        var maxAllowedSize = 5 * 1024 * 1024;
+
+        using var stream = file.OpenReadStream(maxAllowedSize);
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+
+        var base64String = Convert.ToBase64String(memoryStream.ToArray());
+
+        newProduct.ImagePath = $"data:{file.ContentType};base64,{base64String}";
+      }
+      catch (Exception)
+      {
+        errorMessage = "That image is too large. Please select a file smaller than 5MB.";
+      }
+    }
+  }
+
+  private async Task SaveProduct()
+  {
+    try
+    {
+      errorMessage = null;
+
+      DbContext.Products.Add(newProduct);
+    
+      await DbContext.SaveChangesAsync();
+      
+      NavigationManager.NavigateTo("/admin/inventory");
+    }
+    catch (Exception)
+    {
+      errorMessage = "We couldn't save this product due to a database connection issue. Please try clicking save again.";
+    }
+  }
+}
