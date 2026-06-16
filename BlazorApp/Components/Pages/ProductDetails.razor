@@ -27,7 +27,7 @@ else
         <img src="@product.ImagePath" alt="@product.Name" width="300" />
         <h2><strong>@product.Name</strong></h2>
         <p>@product.Description</p>
-        <p><strong>Price:</strong> @product.Price.ToString("C")</p>
+        <p><strong>Price:</strong> @product.Price?.ToString("C")</p>
         <p><strong>Weight:</strong> @product.Weight kg</p>
         <p><strong>Status:</strong> @(product.Available ? "Available" : "Unavailable")</p>
     </div>
