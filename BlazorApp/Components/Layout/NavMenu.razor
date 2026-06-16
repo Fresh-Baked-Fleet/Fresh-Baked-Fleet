@@ -22,6 +22,13 @@
                         </NotAuthorized>
                     </AuthorizeView>
                 </li>
+                <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/orders/create">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden ="true"></span>Order
+
+            </NavLink>
+
+        </div>
                 <li class="nav-item">
                     <NavLink class="nav-link navbar-brand" href="/" Match="NavLinkMatch.All">Fresh Baked Fleet</NavLink>
                 </li>
@@ -57,10 +64,14 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
+
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    
+
 
     private void CollapseNavMenu()
     {

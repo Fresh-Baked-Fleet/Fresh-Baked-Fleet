@@ -1,0 +1,110 @@
+@page "/orders/create"
+@using BlazorApp.Models
+
+@using BlazorApp.Services
+@inject ProductService ProductService
+@rendermode InteractiveServer
+
+
+<div class="orders">
+<h3>Create Order</h3>
+
+<select class="product-select" @bind="SelectedProductId">
+   
+    @foreach (var p in products)
+    {
+        <option value="@p.Id">@p.Name</option>
+    }
+</select>
+
+<input type="number" @bind="quantity"/>
+
+<button @onclick="AddItem">Add</button>
+
+
+<h4>Summary</h4>
+@foreach(var item in cart)
+{
+     <div class="card mb-2 p-2 d-flex flex-row align-items-center">
+
+        <img src="@item.Product.ImagePath"
+             style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />
+
+        <div class="ms-3 flex-grow-1">
+            <h5>@item.Product.Name</h5>
+
+            <p class="mb-1">@item.Product.Description</p>
+
+            <div>
+                <strong>Price:</strong> @item.Product.Price € <br />
+                <strong>Weight:</strong> @item.Product.Weight kg <br />
+                <strong>Quantity:</strong> @item.Quantity
+            </div>
+        </div>
+        <button class="delete"
+          @onclick="() => RemoveItem(item)">
+            ❌
+        </button>
+
+    </div>
+}
+<p>Total : @cart.Sum(x=>x.Quantity)</p>
+<button @onclick="SubmitOrder"> Submit Order</button>
+
+@if(showPopup)
+{
+    <div class="alert alert-success">
+        <h4>Order Created Successfully</h4>
+        <button @onclick="ClosePopup">OK</button>
+    </div>
+}
+</div>
+@code {
+    List<Product>products = new ();
+    List<OrderItem>cart = new();
+
+    int SelectedProductId = 0;
+    int quantity =1;
+    bool showPopup = false;
+
+    void SubmitOrder()
+    {
+        showPopup = true;
+
+    }
+    void  ClosePopup()
+    {
+        showPopup = false;
+        cart.Clear();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ProductService.GetProductsAsync();
+
+        if (products.Any())
+        {
+            SelectedProductId = products.First().Id;
+        }
+       
+    }
+     void RemoveItem(OrderItem item)
+        {
+            cart.Remove(item);
+        }
+   void AddItem()
+   {
+    
+
+    var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
+
+    if (product == null)
+        return;
+
+    cart.Add(new OrderItem
+    {
+        ProductId = product.Id,
+        Product = product,
+        Quantity = quantity
+    });
+}
+}
