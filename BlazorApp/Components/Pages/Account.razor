@@ -21,6 +21,13 @@
       <hr>
       <p class="mb-0"><strong>Full Name:</strong> @currentUser.FirstName @currentUser.LastName</p>
       <p class="mb-0"><strong>Registered Email:</strong> @currentUser.Email</p>
+      <p class="mb-0"><strong>Residential Address:</strong> @GetFullAddress()</p>
+      <p class="mb-0"><strong>Contact Preference:</strong> @currentUser.Preference</p>
+      <hr />
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <a class="btn btn-earth shadow-sm" href="/account/edit">Edit Account Details</a>
+        <a class="btn btn-outline-secondary" href="/">Back to Shop</a>
+      </div>
     </div>
   }
   else
@@ -32,7 +39,30 @@
 @code {
   private User? currentUser;
 
+  private string GetFullAddress()
+  {
+    if (currentUser == null) return "Not provided";
+    var parts = new[] { currentUser.ResidentialAddress, currentUser.StreetAddress, currentUser.City, currentUser.State, currentUser.ZipCode };
+    var nonEmpty = parts.Where(p => !string.IsNullOrWhiteSpace(p)).ToArray();
+    return nonEmpty.Length == 0 ? "Not provided" : string.Join(", ", nonEmpty);
+  }
+
   protected override async Task OnInitializedAsync()
+  {
+    await LoadUserData();
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    // Reload user data each time the page is accessed to ensure edits are reflected
+    if (!firstRender)
+    {
+      await LoadUserData();
+      StateHasChanged();
+    }
+  }
+
+  private async Task LoadUserData()
   {
     var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
     var userPrincipal = authState.User;
