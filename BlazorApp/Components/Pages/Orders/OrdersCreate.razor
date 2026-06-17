@@ -1,82 +1,166 @@
 @page "/orders/create"
 @using BlazorApp.Models
-
 @using BlazorApp.Services
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Data
+
+@attribute [Authorize]
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<User> UserManager
+@inject AppDbContext DbContext
+@inject NavigationManager NavigationManager
 @inject ProductService ProductService
 @rendermode InteractiveServer
 
 <PageTitle>Create Order</PageTitle>
 
-<div class="orders">
-<h3>Create Order</h3>
+<div class="bakery-container shadow-sm mt-4 mb-5 mx-auto" style="max-width: 1000px;">
+    <h3 style="color: #4A3B32; border-bottom: 2px solid #E0DCD3; padding-bottom: 10px;">Create Order</h3>
 
-<select class="product-select" @bind="SelectedProductId">
-   
-    @foreach (var p in products)
+    <div class="d-flex flex-wrap gap-3 align-items-center mt-4 mb-4">
+        <div class="flex-grow-1">
+            <label class="form-label small fw-bold mb-1" style="color: #6B4E31;">Select Product</label>
+            <select class="bakery-input w-100" @bind="SelectedProductId">
+                @foreach (var p in products)
+                {
+                    <option value="@p.Id">@p.Name</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label small fw-bold mb-1" style="color: #6B4E31;">Quantity</label><br />
+            <input type="number" class="bakery-input" style="width: 100px;" @bind="quantity" min="1" />
+        </div>
+
+        <div class="align-self-end">
+            <button class="btn btn-bakery-primary" @onclick="AddItem">Add to Order</button>
+        </div>
+    </div>
+
+
+    <h4 style="color: #6B4E31;" class="mt-5">Order Summary</h4>
+    <hr style="border-color: #E0DCD3;" />
+
+    @if (!cart.Any())
     {
-        <option value="@p.Id">@p.Name</option>
+        <p class="text-muted fst-italic">Your cart is empty. Add some items above to get started!</p>
     }
-</select>
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+    <div class="alert shadow-sm mb-4" style="background-color: #fff; border-left: 4px solid #C06C5B; color: #4A3B32;">
+        <i class="bi bi-exclamation-triangle-fill me-2" style="color: #C06C5B;"></i> @errorMessage
+    </div>
+    }
 
-<input type="number" @bind="quantity"/>
+    @foreach(var item in cart)
+    {
+        <div class="bakery-card mb-3 p-3 d-flex flex-row align-items-center shadow-sm">
+            <img src="@item.Product.ImagePath"
+                style="width:80px;height:80px;object-fit:cover;border-radius:8px; border: 1px solid #E0DCD3;" />
 
-<button @onclick="AddItem">Add</button>
+            <div class="ms-3 flex-grow-1" style="color: #4A3B32;">
+                <h5 class="mb-1" style="color: #6B4E31;">@item.Product.Name</h5>
 
+                <p class="mb-1 small text-muted">@item.Product.Description</p>
 
-<h4>Summary</h4>
-@foreach(var item in cart)
-{
-     <div class="card mb-2 p-2 d-flex flex-row align-items-center">
+                <div class="small mt-2">
+                    <strong>Price:</strong> @item.Product.Price?.ToString("C") <span class="mx-2 text-muted">|</span>
+                    <strong>Weight:</strong> @item.Product.Weight kg <span class="mx-2 text-muted">|</span>
+                    <strong>Quantity:</strong> @item.Quantity
+                </div>
+            </div>
+            <button class="delete-btn ms-3" @onclick="() => RemoveItem(item)" title="Remove Item">
+                ❌
+            </button>
 
-        <img src="@item.Product.ImagePath"
-             style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />
-
-        <div class="ms-3 flex-grow-1">
-            <h5>@item.Product.Name</h5>
-
-            <p class="mb-1">@item.Product.Description</p>
-
+        </div>
+    }
+    @if (cart.Any())
+    {
+        <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 p-3 rounded shadow-sm" style="background-color: #fff; border: 1px solid #E0DCD3;">
             <div>
-                <strong>Price:</strong> @item.Product.Price?.ToString("C") <br />
-                <strong>Weight:</strong> @item.Product.Weight kg <br />
-                <strong>Quantity:</strong> @item.Quantity
+                <h6 class="mb-1 text-muted">Total Items: @cart.Sum(x => x.Quantity)</h6>
+                <h4 class="mb-0" style="color: #4A3B32;">
+                    Order Total: <strong style="color: #6B4E31;">@cart.Sum(x => (x.Product.Price ?? 0m) * x.Quantity).ToString("C")</strong>
+                </h4>
+            </div>
+            <button class="btn btn-bakery-primary btn-lg px-4 mt-3 mt-sm-0" @onclick="SubmitOrder">Submit Order</button>
+        </div>
+    }
+
+    @if(showPopup)
+    {
+        <div class="bakery-alert mt-4 shadow-sm">
+            <h4 style="color: #4A3B32; margin-bottom: 5px;">Order Created Successfully!</h4>
+            <p style="color: #6B4E31; margin-bottom: 15px; font-size: 1.05rem;">
+                Thank you for trusting Fresh-Baked Fleet, our sales team will reach out soon.
+            </p>
+            <div>
+                <button class="btn btn-bakery-outline" @onclick="ClosePopup">Close</button>
+                <button class="btn btn-bakery-primary ms-2" @onclick="GoToAccount">View My Orders</button>
             </div>
         </div>
-        <button class="delete"
-          @onclick="() => RemoveItem(item)">
-            ❌
-        </button>
-
-    </div>
-}
-<p>Total : @cart.Sum(x=>x.Quantity)</p>
-<button @onclick="SubmitOrder"> Submit Order</button>
-
-@if(showPopup)
-{
-    <div class="alert alert-success">
-        <h4>Order Created Successfully</h4>
-        <button @onclick="ClosePopup">OK</button>
-    </div>
-}
+    }
 </div>
+
 @code {
     List<Product>products = new ();
     List<OrderItem>cart = new();
+
+    private string? errorMessage;
 
     int SelectedProductId = 0;
     int quantity =1;
     bool showPopup = false;
 
-    void SubmitOrder()
+    async Task SubmitOrder()
     {
-        showPopup = true;
+        if (!cart.Any()) return;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+
+        if (user != null)
+        {
+            try
+            {
+                errorMessage = null;
+
+                var newOrder = new Order
+                {
+                    UserId = user.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    Status = OrderStatus.Pending,
+                    Items = cart.Select(item => new OrderItem
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity
+                    }).ToList()
+                };
+
+                DbContext.Orders.Add(newOrder);
+                await DbContext.SaveChangesAsync();
+
+                showPopup = true;
+            }
+            catch (Exception)
+            {
+                errorMessage = "We couldn't process your order at the moment due to a database connection issue. Please try again.";
+            }
+        }
 
     }
     void  ClosePopup()
     {
         showPopup = false;
         cart.Clear();
+    }
+    void GoToAccount()
+    {
+        NavigationManager.NavigateTo("/account");
     }
     protected override async Task OnInitializedAsync()
     {
@@ -88,24 +172,22 @@
         }
        
     }
-     void RemoveItem(OrderItem item)
-        {
-            cart.Remove(item);
-        }
-   void AddItem()
-   {
-    
-
-    var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
-
-    if (product == null)
-        return;
-
-    cart.Add(new OrderItem
+    void RemoveItem(OrderItem item)
     {
-        ProductId = product.Id,
-        Product = product,
-        Quantity = quantity
-    });
-}
+        cart.Remove(item);
+    }
+    void AddItem()
+    {
+        var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
+
+        if (product == null)
+            return;
+
+        cart.Add(new OrderItem
+        {
+            ProductId = product.Id,
+            Product = product,
+            Quantity = quantity
+        });
+    }
 }
