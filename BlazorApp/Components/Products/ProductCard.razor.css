@@ -7,7 +7,17 @@
   transition:
     transform 0.3s ease,
     opacity 0.3s ease;
+  color: inherit;
+}
+
+.product-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
   cursor: pointer;
+}
+
+.product-card-link:hover {
   text-decoration: none;
   color: inherit;
 }
@@ -64,4 +74,55 @@
 
 .unavailable {
   background-color: rgb(59, 1, 1);
+}
+
+.product-card-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.quantity-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6B4E31;
+  margin: 0;
+}
+
+.quantity-input {
+  width: 64px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #E0DCD3;
+  text-align: center;
+}
+
+.add-to-order-btn {
+  display: inline-block;
+  border-radius: 30px;
+  border: none;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 1.25rem;
+  background-color: #6B4E31;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.add-to-order-btn:hover {
+  background-color: #553D26;
+  color: #fff;
+}
+
+.add-to-order-btn.unavailable {
+  background-color: #b8b8b8;
+  color: #f0f0f0;
+  cursor: not-allowed;
+  opacity: 0.65;
 }

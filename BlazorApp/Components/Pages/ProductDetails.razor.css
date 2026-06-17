@@ -57,3 +57,20 @@ h1 {
   font-size: 1.15em;
   margin-bottom: 20px;
 }
+
+.product-order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.order-quantity-input {
+  width: 80px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  text-align: center;
+}

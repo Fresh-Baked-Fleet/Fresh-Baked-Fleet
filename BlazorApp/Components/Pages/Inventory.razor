@@ -12,6 +12,7 @@
 @inject UserManager<User> UserManager
 @inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Inventory Management</PageTitle>
 
@@ -134,12 +135,19 @@
   }
 
   private void EditProduct(int productId)
-{
-  NavigationManager.NavigateTo($"/admin/inventory/edit/{productId}");
-}
+  {
+    NavigationManager.NavigateTo($"/admin/inventory/edit/{productId}");
+  }
 
   private async Task DeleteProduct(int productId)
   {
+    bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this product? This action cannot be undone.");
+
+    if (!confirmed)
+    {
+      return;
+    }
+    
     try
     {
       errorMessage = null;

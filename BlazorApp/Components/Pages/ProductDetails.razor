@@ -1,7 +1,9 @@
 @page "/products/{id:int}"
+@rendermode InteractiveServer
 
 @using BlazorApp.Services
 @using BlazorApp.Models
+@using BlazorApp.Components.Orders
 
 @inject ProductService ProductService
 
@@ -30,6 +32,15 @@ else
         <p><strong>Price:</strong> @product.Price?.ToString("C")</p>
         <p><strong>Weight:</strong> @product.Weight kg</p>
         <p><strong>Status:</strong> @(product.Available ? "Available" : "Unavailable")</p>
+
+        <div class="product-order-actions">
+            <label for="order-quantity">Quantity</label>
+            <input id="order-quantity" type="number" min="1" @bind="orderQuantity" class="order-quantity-input" />
+            <AddToOrderButton Product="product"
+                              Quantity="orderQuantity"
+                              NavigateOnAdd="false"
+                              ReturnUrl="@($"/products/{product.Id}")" />
+        </div>
     </div>
 }
 
@@ -39,6 +50,7 @@ else
     public int Id { get; set; }
 
     private Product? product;
+    private int orderQuantity = 1;
 
     protected override async Task OnParametersSetAsync()
     {

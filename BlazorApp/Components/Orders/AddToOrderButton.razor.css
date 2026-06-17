@@ -1,0 +1,26 @@
+.add-to-order-btn {
+    border-radius: 30px;
+    border: none;
+    height: 40px;
+    padding: 0 1.25rem;
+    background-color: #6B4E31;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.add-to-order-btn:hover:not(:disabled) {
+    background-color: #553D26;
+}
+
+.add-to-order-btn:disabled {
+    background-color: #b8b8b8;
+    color: #f0f0f0;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.add-to-order-control {
+    display: inline-block;
+}

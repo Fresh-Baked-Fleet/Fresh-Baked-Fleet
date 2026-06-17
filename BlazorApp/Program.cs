@@ -64,6 +64,7 @@ builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserState>();
+builder.Services.AddScoped<OrderCartService>();
 
 var app = builder.Build();
 

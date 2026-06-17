@@ -10,9 +10,9 @@ namespace BlazorApp.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "ResidentialAddress",
-                table: "AspNetUsers");
+            // migrationBuilder.DropColumn(
+            //     name: "ResidentialAddress",
+            //     table: "AspNetUsers");
         }
 
         /// <inheritdoc />
