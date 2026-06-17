@@ -1,0 +1,297 @@
+@page "/account/edit"
+@using System.ComponentModel.DataAnnotations
+@using BlazorApp.Models
+@using Microsoft.AspNetCore.Identity
+@using BlazorApp.Services
+
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<User> UserManager
+@inject NavigationManager NavigationManager
+@inject UserState UserState
+
+<PageTitle>Edit Account</PageTitle>
+
+<CenteredCard>
+  <div class="main w-100">
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+      <div>
+        <h3 class="mb-1">Edit your account details</h3>
+        <p class="text-muted mb-0">Update your profile information and communication preferences.</p>
+      </div>
+      <a class="btn btn-outline-secondary btn-sm" href="/account">Back</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(statusMessage))
+    {
+      <div class="alert alert-danger" role="alert">@statusMessage</div>
+    }
+
+    @if (isLoading)
+    {
+      <p class="text-muted"><em>Loading your profile...</em></p>
+    }
+    else
+    {
+      <EditForm Model="editModel" OnValidSubmit="HandleSave" FormName="accountEditForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">First Name</label>
+            <InputText @bind-Value="editModel!.FirstName" class="form-control" />
+            <ValidationMessage For="@(() => editModel.FirstName)" class="text-danger" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Last Name</label>
+            <InputText @bind-Value="editModel!.LastName" class="form-control" />
+            <ValidationMessage For="@(() => editModel.LastName)" class="text-danger" />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Email Address 🔒</label>
+            <InputText @bind-Value="editModel!.EmailAddress" type="email" class="form-control disabledText" style="color: gray;" disabled />
+            <ValidationMessage For="@(() => editModel.EmailAddress)" class="text-danger" />
+            <span class="fst-italic" style="font-size: 0.8rem;">
+              Email cannot be changed for security reasons.
+            </span>
+          </div>
+
+          <div class="col-md-12 mb-3">
+            <label class="form-label">Phone Number</label>
+            <InputText @bind-Value="editModel.PhoneNumber" type="tel" class="form-control" />
+            <ValidationMessage For="@(() => editModel.PhoneNumber)" class="text-danger" />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Street Address</label>
+            <InputText @bind-Value="editModel.StreetAddress" class="form-control" />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">City</label>
+            <InputText @bind-Value="editModel.City" class="form-control" />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">State</label>
+            <InputText @bind-Value="editModel.State" class="form-control" />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">ZIP Code</label>
+            <InputText @bind-Value="editModel.ZipCode" class="form-control" />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label d-block mb-2">Preferred Contact Method</label>
+            <InputRadioGroup @bind-Value="editModel.ContactPreference">
+              
+              <div class="form-check form-check-inline">
+                <InputRadio Value="@ContactPreference.Email" class="form-check-input" id="contactEmail" />
+                <label class="form-check-label" for="contactEmail">Email</label>
+              </div>
+              
+              <div class="form-check form-check-inline">
+                <InputRadio Value="@ContactPreference.PhoneNumber" class="form-check-input" id="contactPhone" />
+                <label class="form-check-label" for="contactPhone">Phone Number</label>
+              </div>
+
+            </InputRadioGroup>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">New Password (leave blank to keep current)</label>
+            <InputText @bind-Value="editModel.Password" type="password" class="form-control" autocomplete="new-password" />
+            <ValidationMessage For="@(() => editModel.Password)" class="text-danger" />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Confirm New Password</label>
+            <InputText @bind-Value="editModel.ConfirmPassword" type="password" class="form-control" autocomplete="new-password" />
+            <ValidationMessage For="@(() => editModel.ConfirmPassword)" class="text-danger" />
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <button type="submit" class="btn btn-earth shadow-sm" disabled="@isSaving">Save Changes</button>
+          <a class="btn btn-outline-secondary" href="/account">Cancel</a>
+        </div>
+      </EditForm>
+    }
+  </div>
+</CenteredCard>
+
+@code {
+  private bool isLoading;
+  private bool isSaving;
+  private string statusMessage = string.Empty;
+  private User? currentUser;
+
+  [SupplyParameterFromForm]
+  private EditAccountModel? editModel { get; set; }
+
+  protected override async Task OnInitializedAsync()
+  {
+    isLoading = true;
+    try
+    {
+      var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+      var userPrincipal = authState.User;
+
+      if (userPrincipal.Identity?.IsAuthenticated != true)
+      {
+        NavigationManager.NavigateTo("/account/login", forceLoad: true);
+        return;
+      }
+
+      currentUser = await UserManager.GetUserAsync(userPrincipal);
+      if (currentUser == null)
+      {
+        statusMessage = "We could not find your profile. Please sign in again.";
+        return;
+      }
+
+      editModel = new EditAccountModel
+      {
+        FirstName = currentUser.FirstName,
+        LastName = currentUser.LastName,
+        EmailAddress = currentUser.Email ?? string.Empty,
+        PhoneNumber = currentUser.PhoneNumber ?? string.Empty,
+        StreetAddress = currentUser.StreetAddress,
+        City = currentUser.City,
+        State = currentUser.State,
+        ZipCode = currentUser.ZipCode,
+        ContactPreference = currentUser.Preference
+      };
+    }
+    finally
+    {
+      isLoading = false;
+    }
+  }
+
+  private async Task HandleSave()
+  {
+    statusMessage = string.Empty;
+    if (currentUser == null)
+    {
+      statusMessage = "Your account details could not be loaded.";
+      return;
+    }
+
+    isSaving = true;
+    try
+    {
+      currentUser.FirstName = (editModel!.FirstName ?? string.Empty).Trim();
+      currentUser.LastName = (editModel!.LastName ?? string.Empty).Trim();
+      // Do not allow changing the email address for security reasons.
+      currentUser.StreetAddress = (editModel!.StreetAddress ?? string.Empty).Trim();
+      currentUser.PhoneNumber = (editModel!.PhoneNumber ?? string.Empty).Trim();
+      currentUser.City = (editModel!.City ?? string.Empty).Trim();
+      currentUser.State = (editModel!.State ?? string.Empty).Trim();
+      currentUser.ZipCode = (editModel!.ZipCode ?? string.Empty).Trim();
+      currentUser.Preference = editModel!.ContactPreference;
+
+      // If the user provided a new password, update it (remove existing password then add the new one).
+      if (!string.IsNullOrWhiteSpace(editModel.Password))
+      {
+        if (!string.Equals(editModel.Password, editModel.ConfirmPassword, StringComparison.Ordinal))
+        {
+          statusMessage = "The new passwords do not match.";
+          return;
+        }
+
+        var removeResult = await UserManager.RemovePasswordAsync(currentUser);
+        if (!removeResult.Succeeded)
+        {
+          // Continue anyway — RemovePasswordAsync may fail if the user has no password; we still try to add.
+        }
+
+        var addPassResult = await UserManager.AddPasswordAsync(currentUser, editModel.Password.Trim());
+        if (!addPassResult.Succeeded)
+        {
+          statusMessage = string.Join(" ", addPassResult.Errors.Select(e => e.Description));
+          return;
+        }
+      }
+
+      var updateResult = await UserManager.UpdateAsync(currentUser);
+      if (!updateResult.Succeeded)
+      {
+        statusMessage = string.Join(" ", updateResult.Errors.Select(e => e.Description));
+        return;
+      }
+
+      // Notify other components about the updated user so they can refresh immediately
+      try
+      {
+        UserState.SetUser(currentUser);
+      }
+      catch
+      {
+        // ignore any state notification errors — navigation will still occur
+      }
+
+      NavigationManager.NavigateTo("/account", forceLoad: false);
+    }
+    catch (Exception)
+    {
+      statusMessage = "We could not save your account details right now. Please try again.";
+    }
+    finally
+    {
+      isSaving = false;
+    }
+  }
+
+  private sealed class OptionalMinLengthAttribute : ValidationAttribute
+  {
+    private readonly int _minLength;
+    public OptionalMinLengthAttribute(int minLength)
+    {
+      _minLength = minLength;
+    }
+
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+      var str = value as string;
+      if (string.IsNullOrEmpty(str)) return ValidationResult.Success;
+      return str.Length >= _minLength
+        ? ValidationResult.Success
+        : new ValidationResult(ErrorMessage ?? $"Minimum length is {_minLength}.");
+    }
+  }
+
+  private sealed class EditAccountModel
+  {
+    [Required(ErrorMessage = "First name is required.")]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Last name is required.")]
+    public string LastName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Email address is required.")]
+    [EmailAddress(ErrorMessage = "Enter a valid email address.")]
+    public string EmailAddress { get; set; } = string.Empty;
+
+    [Phone(ErrorMessage = "Please enter a valid phone number.")]
+    public string PhoneNumber { get; set; } = string.Empty;
+    public string StreetAddress { get; set; } = string.Empty;
+    public string City { get; set; } = string.Empty;
+    public string State { get; set; } = string.Empty;
+    public string ZipCode { get; set; } = string.Empty;
+
+    public ContactPreference ContactPreference { get; set; } = ContactPreference.Email;
+    [OptionalMinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
+    public string Password { get; set; } = string.Empty;
+
+    [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+  }
+}
