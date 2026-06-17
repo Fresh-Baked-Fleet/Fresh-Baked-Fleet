@@ -95,9 +95,9 @@
             </div>
             <button class="btn btn-bakery-primary btn-lg px-4 mt-3 mt-sm-0"
                     @onclick="SubmitOrder"
-                    disabled="@(!Cart.Items.Any())"
+                    disabled="@(!Cart.Items.Any() || isSubmitting || showPopup)"
                     title="@(Cart.Items.Any() ? null : "Add items to your cart first")">
-                Submit Order
+                @(isSubmitting ? "Submitting..." : "Submit Order")
             </button>
         </div>
     }
@@ -124,6 +124,7 @@
     int SelectedProductId;
     int quantity = 1;
     bool showPopup;
+    bool isSubmitting;
 
     [SupplyParameterFromQuery(Name = "productId")]
     public int? ProductId { get; set; }
@@ -149,6 +150,7 @@
 
         try
         {
+            isSubmitting = true;
             errorMessage = null;
 
             var newOrder = new Order
@@ -166,28 +168,35 @@
             DbContext.Orders.Add(newOrder);
             await DbContext.SaveChangesAsync();
 
+            await Cart.ClearAsync();
             showPopup = true;
         }
         catch (Exception)
         {
             errorMessage = "We couldn't process your order at the moment due to a database connection issue. Please try again.";
         }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
 
     void ClosePopup()
     {
         showPopup = false;
-        Cart.Clear();
     }
 
-    void GoToAccount()
+    async Task GoToAccount()
     {
+        showPopup = false;
+        await Cart.ClearAsync();
         Navigation.NavigateTo("/account");
     }
 
     protected override async Task OnInitializedAsync()
     {
         Cart.OnChange += HandleCartChanged;
+        await Cart.EnsureLoadedAsync();
         products = await ProductService.GetProductsAsync();
 
         if (products.Any())
@@ -200,19 +209,19 @@
             var product = products.FirstOrDefault(p => p.Id == ProductId.Value);
             if (product != null)
             {
-                Cart.AddItem(product, QueryQuantity ?? 1);
+                await Cart.AddItemAsync(product, QueryQuantity ?? 1);
                 SelectedProductId = product.Id;
                 Navigation.NavigateTo("/orders/create", replace: true);
             }
         }
     }
 
-    void RemoveItem(OrderItem item)
+    async Task RemoveItem(OrderItem item)
     {
-        Cart.RemoveItem(item);
+        await Cart.RemoveItemAsync(item);
     }
 
-    void AddItem()
+    async Task AddItem()
     {
         submitError = string.Empty;
 
@@ -220,7 +229,7 @@
         if (product == null)
             return;
 
-        Cart.AddItem(product, quantity);
+        await Cart.AddItemAsync(product, quantity);
     }
 
     private void HandleCartChanged() => InvokeAsync(StateHasChanged);

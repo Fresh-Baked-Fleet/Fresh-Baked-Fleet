@@ -78,10 +78,11 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        cartItemCount = Cart.ItemCount;
         Cart.OnChange += HandleCartChanged;
+        await Cart.EnsureLoadedAsync();
+        cartItemCount = Cart.ItemCount;
     }
 
     private void HandleCartChanged()

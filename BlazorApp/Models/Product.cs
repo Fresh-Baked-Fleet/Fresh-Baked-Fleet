@@ -1,6 +1,5 @@
 namespace BlazorApp.Models;
 using System.ComponentModel.DataAnnotations;
-using BlazorApp.Components.Pages;
 
 // This class represents a product in the application.
 // It includes properties for the product's ID, name, price, weight,
