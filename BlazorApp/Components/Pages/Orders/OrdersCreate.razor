@@ -1,7 +1,15 @@
 @page "/orders/create"
 @using BlazorApp.Models
 @using BlazorApp.Services
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Data
 
+@attribute [Authorize]
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<User> UserManager
+@inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 @inject ProductService ProductService
 @rendermode InteractiveServer
@@ -39,6 +47,12 @@
     @if (!cart.Any())
     {
         <p class="text-muted fst-italic">Your cart is empty. Add some items above to get started!</p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+    <div class="alert shadow-sm mb-4" style="background-color: #fff; border-left: 4px solid #C06C5B; color: #4A3B32;">
+        <i class="bi bi-exclamation-triangle-fill me-2" style="color: #C06C5B;"></i> @errorMessage
+    </div>
     }
 
     @foreach(var item in cart)
@@ -86,13 +100,47 @@
     List<Product>products = new ();
     List<OrderItem>cart = new();
 
+    private string? errorMessage;
+
     int SelectedProductId = 0;
     int quantity =1;
     bool showPopup = false;
 
-    void SubmitOrder()
+    async Task SubmitOrder()
     {
-        showPopup = true;
+        if (!cart.Any()) return;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+
+        if (user != null)
+        {
+            try
+            {
+                errorMessage = null;
+
+                var newOrder = new Order
+                {
+                    UserId = user.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    Status = OrderStatus.Pending,
+                    Items = cart.Select(item => new OrderItem
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity
+                    }).ToList()
+                };
+
+                DbContext.Orders.Add(newOrder);
+                await DbContext.SaveChangesAsync();
+
+                showPopup = true;
+            }
+            catch (Exception)
+            {
+                errorMessage = "We couldn't process your order at the moment due to a database connection issue. Please try again.";
+            }
+        }
 
     }
     void  ClosePopup()
