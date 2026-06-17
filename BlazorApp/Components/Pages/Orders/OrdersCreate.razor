@@ -16,7 +16,7 @@
 
 <PageTitle>Create Order</PageTitle>
 
-<div class="bakery-container shadow-sm mt-3">
+<div class="bakery-container shadow-sm mt-4 mb-5 mx-auto" style="max-width: 1000px;">
     <h3 style="color: #4A3B32; border-bottom: 2px solid #E0DCD3; padding-bottom: 10px;">Create Order</h3>
 
     <div class="d-flex flex-wrap gap-3 align-items-center mt-4 mb-4">
@@ -80,18 +80,28 @@
     }
     @if (cart.Any())
     {
-        <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 p-3 rounded" style="background-color: #fff; border: 1px solid #E0DCD3;">
-            <h5 class="mb-0" style="color: #4A3B32;">Total Items: <strong style="color: #6B4E31;">@cart.Sum(x => x.Quantity)</strong></h5>
-            <button class="btn btn-bakery-primary btn-lg px-4 mt-2 mt-sm-0" @onclick="SubmitOrder">Submit Order</button>
+        <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 p-3 rounded shadow-sm" style="background-color: #fff; border: 1px solid #E0DCD3;">
+            <div>
+                <h6 class="mb-1 text-muted">Total Items: @cart.Sum(x => x.Quantity)</h6>
+                <h4 class="mb-0" style="color: #4A3B32;">
+                    Order Total: <strong style="color: #6B4E31;">@cart.Sum(x => (x.Product.Price ?? 0m) * x.Quantity).ToString("C")</strong>
+                </h4>
+            </div>
+            <button class="btn btn-bakery-primary btn-lg px-4 mt-3 mt-sm-0" @onclick="SubmitOrder">Submit Order</button>
         </div>
     }
 
-   @if(showPopup)
+    @if(showPopup)
     {
         <div class="bakery-alert mt-4 shadow-sm">
-            <h4 style="color: #4A3B32; margin-bottom: 15px;">Order Created Successfully</h4>
-            <button class="btn btn-bakery-outline" @onclick="ClosePopup">Close</button>
-            <button class="btn btn-bakery-primary ms-2" @onclick="GoToAccount">View My Orders</button>
+            <h4 style="color: #4A3B32; margin-bottom: 5px;">Order Created Successfully!</h4>
+            <p style="color: #6B4E31; margin-bottom: 15px; font-size: 1.05rem;">
+                Thank you for trusting Fresh-Baked Fleet, our sales team will reach out soon.
+            </p>
+            <div>
+                <button class="btn btn-bakery-outline" @onclick="ClosePopup">Close</button>
+                <button class="btn btn-bakery-primary ms-2" @onclick="GoToAccount">View My Orders</button>
+            </div>
         </div>
     }
 </div>

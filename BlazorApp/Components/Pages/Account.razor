@@ -13,8 +13,8 @@
 
 <PageTitle>My Account</PageTitle>
 
-<div class="main w-100">
-  <h3>My Account Dashboard</h3>
+<div class="mx-auto mt-4 mb-5" style="max-width: 1000px;">
+  <h3 style="color: #4A3B32; padding-bottom: 10px;">My Account</h3>
   <hr />
 
   @if (currentUser != null)
@@ -36,60 +36,66 @@
     </div>
 
     <hr />
-    @* <div> *@
-      <h4>My Order History</h4>
-      @if (userOrders == null)
+    <h4>My Order History</h4>
+    @if (userOrders == null)
+    {
+      <p><em>Loading orders...</em></p>
+    }
+    else if (!userOrders.Any())
+    {
+      <p>You haven't placed any orders yet.</p>
+    }
+    else
+  {
+    <div class="d-flex flex-column gap-3 mt-3">
+      @foreach (var entry in userOrders.OrderBy(o => o.CreatedAt).Select((o, i) => new { Order = o, Index = i }))
       {
-        <p><em>Loading orders...</em></p>
-      }
-      else if (!userOrders.Any())
-      {
-        <p>You haven't placed any orders yet.</p>
-      }
-      else
-      {
-        <div class="d-flex flex-column gap-3 mt-3">
-          @foreach (var order in userOrders.OrderByDescending(o => o.CreatedAt))
-          {
-            <div class="card shadow-sm" style="border: 1px solid #E0DCD3;">
-              <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #FAF9F6; border-bottom: 1px solid #E0DCD3;">
-                <strong style="color: #4A3B32;">Order @order.Id</strong>
-
-                @{
-                  var badgeStyle = order.Status == OrderStatus.Pending
-                    ? "background-color: #F3E5AB; color: #4A3B32;"
-                    : "background-color: #6B4E31; color: #FAF9F6;";
-                }
-                <span class="badge" style="@badgeStyle">
-                  @order.Status
-                </span>
-              </div>
-              <div class="card-body">
-                <p class="small mb-2" style="color: #6B4E31;">Placed on: @order.CreatedAt.ToLocalTime().ToString("f")</p>
-
-                <table class="table table-sm table-borderless mb-0">
-                  <thead>
-                    <tr style="border-bottom: 1px solid #E0DCD3;">
-                      <th style="color: #4A3B32;">Item</th>
-                      <th style="color: #4A3B32;">Qty</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach (var item in order.Items)
-                    {
-                      <tr style="color: #4A3B32;">
-                        <td>@item.Product.Name</td>
-                        <td>@item.Quantity</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          }
+        <div class="card shadow-sm" style="border: 1px solid #E0DCD3;">
+          <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #FAF9F6; border-bottom: 1px solid #E0DCD3;">
+            
+            <strong style="color: #4A3B32;">Order #@(entry.Index + 1)</strong>
+            
+            <span class="badge" style="@(entry.Order.Status == OrderStatus.Pending ? "background-color: #F3E5AB; color: #4A3B32;" : "background-color: #6B4E31; color: #FAF9F6;")">
+              @entry.Order.Status
+            </span>
+        </div>
+        <div class="card-body">
+          <p class="small mb-2" style="color: #6B4E31;">Placed on: @entry.Order.CreatedAt.ToLocalTime().ToString("f")</p>
+          
+          <table class="table table-sm table-borderless mb-0">
+            <thead>
+              <tr style="border-bottom: 1px solid #E0DCD3;">
+                <th style="color: #4A3B32;">Item</th>
+                <th style="color: #4A3B32;">Price</th>
+                <th style="color: #4A3B32;">Qty</th>
+                <th class="text-end" style="color: #4A3B32;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var item in entry.Order.Items)
+              {
+                <tr style="color: #4A3B32;">
+                  <td>@item.Product.Name</td>
+                  <td>@item.Product.Price?.ToString("C")</td>
+                  <td>@item.Quantity</td>
+                  <td class="text-end">@(((item.Product.Price ?? 0m) * item.Quantity).ToString("C"))</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot style="border-top: 1px solid #E0DCD3;">
+              <tr>
+                <td colspan="3" class="text-end fw-bold pt-2" style="color: #4A3B32;">Order Total:</td>
+                <td class="text-end fw-bold pt-2" style="color: #6B4E31;">
+                  @entry.Order.Items.Sum(i => (i.Product.Price ?? 0m) * i.Quantity).ToString("C")
+                </td>
+              </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
       }
-    @* </div> *@
+    </div>
+  }
 
     <AuthorizeView Roles="Admin">
       <Authorized>
