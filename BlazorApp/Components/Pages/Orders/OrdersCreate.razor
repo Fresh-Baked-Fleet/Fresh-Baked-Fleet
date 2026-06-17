@@ -1,65 +1,87 @@
 @page "/orders/create"
 @using BlazorApp.Models
-
 @using BlazorApp.Services
+
+@inject NavigationManager NavigationManager
 @inject ProductService ProductService
 @rendermode InteractiveServer
 
 <PageTitle>Create Order</PageTitle>
 
-<div class="orders">
-<h3>Create Order</h3>
+<div class="bakery-container shadow-sm mt-3">
+    <h3 style="color: #4A3B32; border-bottom: 2px solid #E0DCD3; padding-bottom: 10px;">Create Order</h3>
 
-<select class="product-select" @bind="SelectedProductId">
-   
-    @foreach (var p in products)
-    {
-        <option value="@p.Id">@p.Name</option>
-    }
-</select>
-
-<input type="number" @bind="quantity"/>
-
-<button @onclick="AddItem">Add</button>
-
-
-<h4>Summary</h4>
-@foreach(var item in cart)
-{
-     <div class="card mb-2 p-2 d-flex flex-row align-items-center">
-
-        <img src="@item.Product.ImagePath"
-             style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />
-
-        <div class="ms-3 flex-grow-1">
-            <h5>@item.Product.Name</h5>
-
-            <p class="mb-1">@item.Product.Description</p>
-
-            <div>
-                <strong>Price:</strong> @item.Product.Price?.ToString("C") <br />
-                <strong>Weight:</strong> @item.Product.Weight kg <br />
-                <strong>Quantity:</strong> @item.Quantity
-            </div>
+    <div class="d-flex flex-wrap gap-3 align-items-center mt-4 mb-4">
+        <div class="flex-grow-1">
+            <label class="form-label small fw-bold mb-1" style="color: #6B4E31;">Select Product</label>
+            <select class="bakery-input w-100" @bind="SelectedProductId">
+                @foreach (var p in products)
+                {
+                    <option value="@p.Id">@p.Name</option>
+                }
+            </select>
         </div>
-        <button class="delete"
-          @onclick="() => RemoveItem(item)">
-            ❌
-        </button>
 
-    </div>
-}
-<p>Total : @cart.Sum(x=>x.Quantity)</p>
-<button @onclick="SubmitOrder"> Submit Order</button>
+        <div>
+            <label class="form-label small fw-bold mb-1" style="color: #6B4E31;">Quantity</label><br />
+            <input type="number" class="bakery-input" style="width: 100px;" @bind="quantity" min="1" />
+        </div>
 
-@if(showPopup)
-{
-    <div class="alert alert-success">
-        <h4>Order Created Successfully</h4>
-        <button @onclick="ClosePopup">OK</button>
+        <div class="align-self-end">
+            <button class="btn btn-bakery-primary" @onclick="AddItem">Add to Order</button>
+        </div>
     </div>
-}
+
+
+    <h4 style="color: #6B4E31;" class="mt-5">Order Summary</h4>
+    <hr style="border-color: #E0DCD3;" />
+
+    @if (!cart.Any())
+    {
+        <p class="text-muted fst-italic">Your cart is empty. Add some items above to get started!</p>
+    }
+
+    @foreach(var item in cart)
+    {
+        <div class="bakery-card mb-3 p-3 d-flex flex-row align-items-center shadow-sm">
+            <img src="@item.Product.ImagePath"
+                style="width:80px;height:80px;object-fit:cover;border-radius:8px; border: 1px solid #E0DCD3;" />
+
+            <div class="ms-3 flex-grow-1" style="color: #4A3B32;">
+                <h5 class="mb-1" style="color: #6B4E31;">@item.Product.Name</h5>
+
+                <p class="mb-1 small text-muted">@item.Product.Description</p>
+
+                <div class="small mt-2">
+                    <strong>Price:</strong> @item.Product.Price?.ToString("C") <span class="mx-2 text-muted">|</span>
+                    <strong>Weight:</strong> @item.Product.Weight kg <span class="mx-2 text-muted">|</span>
+                    <strong>Quantity:</strong> @item.Quantity
+                </div>
+            </div>
+            <button class="delete-btn ms-3" @onclick="() => RemoveItem(item)" title="Remove Item">
+                ❌
+            </button>
+
+        </div>
+    }
+    @if (cart.Any())
+    {
+        <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 p-3 rounded" style="background-color: #fff; border: 1px solid #E0DCD3;">
+            <h5 class="mb-0" style="color: #4A3B32;">Total Items: <strong style="color: #6B4E31;">@cart.Sum(x => x.Quantity)</strong></h5>
+            <button class="btn btn-bakery-primary btn-lg px-4 mt-2 mt-sm-0" @onclick="SubmitOrder">Submit Order</button>
+        </div>
+    }
+
+   @if(showPopup)
+    {
+        <div class="bakery-alert mt-4 shadow-sm">
+            <h4 style="color: #4A3B32; margin-bottom: 15px;">Order Created Successfully</h4>
+            <button class="btn btn-bakery-outline" @onclick="ClosePopup">Close</button>
+            <button class="btn btn-bakery-primary ms-2" @onclick="GoToAccount">View My Orders</button>
+        </div>
+    }
 </div>
+
 @code {
     List<Product>products = new ();
     List<OrderItem>cart = new();
@@ -78,6 +100,10 @@
         showPopup = false;
         cart.Clear();
     }
+    void GoToAccount()
+    {
+        NavigationManager.NavigateTo("/account");
+    }
     protected override async Task OnInitializedAsync()
     {
         products = await ProductService.GetProductsAsync();
@@ -88,24 +114,22 @@
         }
        
     }
-     void RemoveItem(OrderItem item)
-        {
-            cart.Remove(item);
-        }
-   void AddItem()
-   {
-    
-
-    var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
-
-    if (product == null)
-        return;
-
-    cart.Add(new OrderItem
+    void RemoveItem(OrderItem item)
     {
-        ProductId = product.Id,
-        Product = product,
-        Quantity = quantity
-    });
-}
+        cart.Remove(item);
+    }
+    void AddItem()
+    {
+        var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
+
+        if (product == null)
+            return;
+
+        cart.Add(new OrderItem
+        {
+            ProductId = product.Id,
+            Product = product,
+            Quantity = quantity
+        });
+    }
 }

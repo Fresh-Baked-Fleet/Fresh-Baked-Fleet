@@ -1,9 +1,13 @@
 @page "/account"
 @using BlazorApp.Models
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using BlazorApp.Data
+
 
 @attribute [Authorize]
 
+@inject AppDbContext DbContext
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<User> UserManager
 
@@ -31,6 +35,62 @@
       </div>
     </div>
 
+    <hr />
+    @* <div> *@
+      <h4>My Order History</h4>
+      @if (userOrders == null)
+      {
+        <p><em>Loading orders...</em></p>
+      }
+      else if (!userOrders.Any())
+      {
+        <p>You haven't placed any orders yet.</p>
+      }
+      else
+      {
+        <div class="d-flex flex-column gap-3 mt-3">
+          @foreach (var order in userOrders.OrderByDescending(o => o.CreatedAt))
+          {
+            <div class="card shadow-sm" style="border: 1px solid #E0DCD3;">
+              <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #FAF9F6; border-bottom: 1px solid #E0DCD3;">
+                <strong style="color: #4A3B32;">Order @order.Id</strong>
+
+                @{
+                  var badgeStyle = order.Status == OrderStatus.Pending
+                    ? "background-color: #F3E5AB; color: #4A3B32;"
+                    : "background-color: #6B4E31; color: #FAF9F6;";
+                }
+                <span class="badge" style="@badgeStyle">
+                  @order.Status
+                </span>
+              </div>
+              <div class="card-body">
+                <p class="small mb-2" style="color: #6B4E31;">Placed on: @order.CreatedAt.ToLocalTime().ToString("f")</p>
+
+                <table class="table table-sm table-borderless mb-0">
+                  <thead>
+                    <tr style="border-bottom: 1px solid #E0DCD3;">
+                      <th style="color: #4A3B32;">Item</th>
+                      <th style="color: #4A3B32;">Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach (var item in order.Items)
+                    {
+                      <tr style="color: #4A3B32;">
+                        <td>@item.Product.Name</td>
+                        <td>@item.Quantity</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    @* </div> *@
+
     <AuthorizeView Roles="Admin">
       <Authorized>
         <div class="mt-4 p-3 rounded" style="background-color: #FAF9F6; border: 1px solid #E0DCD3;">
@@ -51,6 +111,8 @@
 
 @code {
   private User? currentUser;
+
+  private List<Order>? userOrders;
 
   private string GetFullAddress()
   {
@@ -97,6 +159,15 @@
     if (userPrincipal.Identity?.IsAuthenticated == true)
     {
       currentUser = await UserManager.GetUserAsync(userPrincipal);
+
+      if (currentUser != null)
+      {
+        userOrders = await DbContext.Orders
+          .Include(o => o.Items)
+            .ThenInclude(i => i.Product)
+          .Where(o => o.UserId == currentUser.Id)
+          .ToListAsync();
+      }
     }
   }
 }
