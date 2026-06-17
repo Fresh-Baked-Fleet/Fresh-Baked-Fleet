@@ -95,9 +95,9 @@
             </div>
             <button class="btn btn-bakery-primary btn-lg px-4 mt-3 mt-sm-0"
                     @onclick="SubmitOrder"
-                    disabled="@(!Cart.Items.Any())"
+                    disabled="@(!Cart.Items.Any() || isSubmitting || showPopup)"
                     title="@(Cart.Items.Any() ? null : "Add items to your cart first")">
-                Submit Order
+                @(isSubmitting ? "Submitting..." : "Submit Order")
             </button>
         </div>
     }
@@ -124,6 +124,7 @@
     int SelectedProductId;
     int quantity = 1;
     bool showPopup;
+    bool isSubmitting;
 
     [SupplyParameterFromQuery(Name = "productId")]
     public int? ProductId { get; set; }
@@ -149,6 +150,7 @@
 
         try
         {
+            isSubmitting = true;
             errorMessage = null;
 
             var newOrder = new Order
@@ -166,22 +168,28 @@
             DbContext.Orders.Add(newOrder);
             await DbContext.SaveChangesAsync();
 
+            await Cart.ClearAsync();
             showPopup = true;
         }
         catch (Exception)
         {
             errorMessage = "We couldn't process your order at the moment due to a database connection issue. Please try again.";
         }
+        finally
+        {
+            isSubmitting = false;
+        }
     }
 
-    async Task ClosePopup()
+    void ClosePopup()
+    {
+        showPopup = false;
+    }
+
+    async Task GoToAccount()
     {
         showPopup = false;
         await Cart.ClearAsync();
-    }
-
-    void GoToAccount()
-    {
         Navigation.NavigateTo("/account");
     }
 
