@@ -63,6 +63,7 @@ builder.Services.AddAuthorizationBuilder();
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<UserState>();
 
 var app = builder.Build();
 
