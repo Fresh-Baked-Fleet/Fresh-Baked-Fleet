@@ -119,86 +119,86 @@
     private List<ImageCarousel.CarouselSlideData> GetCarouselSlides()
     {
         return new()
-        {
-            new()
-            {
-                ImageSrc = "/images/adam-bar.jpg",
-                ImageAlt = "Adam Bar",
-                Title = "Baking Fleet",
-                Description = "What we do best."
-            },
-            new()
-            {
-                ImageSrc = "/images/american-heritage.jpg",
-                ImageAlt = "Heritage Baking",
-                Title = "Preparing for the moment",
-                Description = "Perfect for sharing and tasting."
-            },
-            new()
-            {
-                ImageSrc = "/images/crazy.jpeg",
-                ImageAlt = "Taylor Baked",
-                Title = "Artisan Baking",
-                Description = "Handcrafted treats for every craving."
-            },
-            new()
-            {
-                ImageSrc = "/images/table-ingredient.jpeg",
-                ImageAlt = "Taylor Baked",
-                Title = "Artisan Baking",
-                Description = "Handcrafted treats for every craving."
-            }
-        };
+{
+new()
+{
+ImageSrc = "/images/adam-bar.webp",
+ImageAlt = "Adam Bar",
+Title = "Baking Fleet",
+Description = "What we do best."
+},
+new()
+{
+ImageSrc = "/images/american-heritage.webp",
+ImageAlt = "Heritage Baking",
+Title = "Preparing for the moment",
+Description = "Perfect for sharing and tasting."
+},
+new()
+{
+ImageSrc = "/images/crazy.webp",
+ImageAlt = "Taylor Baked",
+Title = "Artisan Baking",
+Description = "Handcrafted treats for every craving."
+},
+new()
+{
+ImageSrc = "/images/table-ingredient.webp",
+ImageAlt = "Taylor Baked",
+Title = "Artisan Baking",
+Description = "Handcrafted treats for every craving."
+}
+};
     }
 
     private List<ImageCarousel.CarouselSlideData> HeroCarouselSlides()
     {
         return new()
-        {
-             new()
-            {
-                ImageSrc = "/images/adam-bar.jpg",
-                ImageAlt = "Adam Bar",
-                Title = "Baking Fleet",
-                Description = "What we do best."
-            },
-            new()
-            {
-                ImageSrc = "/images/american-heritage.jpg",
-                ImageAlt = "Heritage Baking",
-                Title = "Preparing for the moment",
-                Description = "Perfect for sharing and tasting."
-            },
-            new()
-            {
-                ImageSrc = "/images/crazy.jpeg",
-                ImageAlt = "Taylor Baked",
-                Title = "Artisan Baking",
-                Description = "Handcrafted treats for every craving."
-            },
-            new()
-            {
-                ImageSrc = "/images/table-ingredient.jpeg",
-                ImageAlt = "Taylor Baked",
-                Title = "Artisan Baking",
-                Description = "Handcrafted treats for every craving."
-            },
-                new()
-             {
-                ImageSrc = "/images/lindsay-cotter.jpg",
-                ImageAlt = "Taylor Baked",
-                Title = "Artisan Baking",
-                Description = "Handcrafted treats for every craving."
-            },
-                new()
-             {
-                ImageSrc = "/images/no-revisions.jpg",
-                ImageAlt = "Mae Mu",
-                Title = "Artisan Baking",
-                Description = "Heavenly Made ."
-            }
+{
+new()
+{
+ImageSrc = "/images/adam-bar.webp",
+ImageAlt = "Adam Bar",
+Title = "Baking Fleet",
+Description = "What we do best."
+},
+new()
+{
+ImageSrc = "/images/american-heritage.webp",
+ImageAlt = "Heritage Baking",
+Title = "Preparing for the moment",
+Description = "Perfect for sharing and tasting."
+},
+new()
+{
+ImageSrc = "/images/crazy.webp",
+ImageAlt = "Taylor Baked",
+Title = "Artisan Baking",
+Description = "Handcrafted treats for every craving."
+},
+new()
+{
+ImageSrc = "/images/table-ingredient.webp",
+ImageAlt = "Taylor Baked",
+Title = "Artisan Baking",
+Description = "Handcrafted treats for every craving."
+},
+new()
+{
+ImageSrc = "/images/lindsay-cotter.webp",
+ImageAlt = "Taylor Baked",
+Title = "Artisan Baking",
+Description = "Handcrafted treats for every craving."
+},
+new()
+{
+ImageSrc = "/images/no-revisions.webp",
+ImageAlt = "Mae Mu",
+Title = "Artisan Baking",
+Description = "Heavenly Made ."
+}
 
-        };
+};
     }
     private List<Product> products = [];
 
@@ -207,4 +207,3 @@
         products = await ProductService.GetRandomProductsAsync(2);
     }
 }
-
