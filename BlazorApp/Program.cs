@@ -39,20 +39,31 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 })
+// .AddGoogle(options =>
+//{
+//        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+//     ?? throw new InvalidOperationException("Google Client ID is missing.");
+
+//       options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+//        ?? throw new InvalidOperationException("Google Client Secret is missing.");
+//})
+    .AddIdentityCookies();
+
+builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
-        ?? throw new InvalidOperationException("Google Client ID is missing.");
+       options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+    ?? throw new InvalidOperationException("Google Client ID is missing.");
 
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
-        ?? throw new InvalidOperationException("Google Client Secret is missing.");
-    })
-    .AddIdentityCookies();
+      options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+       ?? throw new InvalidOperationException("Google Client Secret is missing.");
+    });
 
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<UserState>();
 
 var app = builder.Build();
 
