@@ -49,6 +49,16 @@ builder.Services.AddAuthentication(options =>
 //})
     .AddIdentityCookies();
 
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+       options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+    ?? throw new InvalidOperationException("Google Client ID is missing.");
+
+      options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+       ?? throw new InvalidOperationException("Google Client Secret is missing.");
+    });
+
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddCascadingAuthenticationState();
 
