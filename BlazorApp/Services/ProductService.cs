@@ -15,6 +15,21 @@ public class ProductService
     {
         return await _context.Products.ToListAsync();
     }
+
+    public async Task<List<Product>> GetRandomProductsAsync(int count)
+    {
+        var products = await _context.Products.ToListAsync();
+        if (count <= 0 || products.Count == 0)
+        {
+            return new List<Product>();
+        }
+
+        return products
+            .OrderBy(_ => Random.Shared.Next())
+            .Take(Math.Min(count, products.Count))
+            .ToList();
+    }
+
     public async Task<Product?> GetProductByIdAsync(int id)
     {
         return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);

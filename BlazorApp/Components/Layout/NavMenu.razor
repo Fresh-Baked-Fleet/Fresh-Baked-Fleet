@@ -1,4 +1,6 @@
-﻿<nav class="navbar navbar-expand-md navbar-dark px-4">
+﻿@rendermode InteractiveServer
+
+<nav class="navbar navbar-expand-md navbar-dark px-4">
     <div class="container-fluid">      
         <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
@@ -10,13 +12,19 @@
                     <AuthorizeView Roles="Admin">
                         <Authorized>
                             <div class="account d-flex align-items-center">
-                            <NavLink class="nav-link" href="/products">Products</NavLink>
-                                    <p class="text-white mb-0">|</p> 
+                                <NavLink class="nav-link" href="/products">Products</NavLink>
+                                <p class="text-white mb-0">|</p>
+                                <NavLink class="nav-link" href="/orders/create">Order</NavLink>
+                                <p class="text-white mb-0">|</p> 
                                 <NavLink class="nav-link" href="admin/inventory">Inventory</NavLink>
                             </div>
                         </Authorized>
                         <NotAuthorized>
-                            <NavLink class="nav-link" href="products">Products</NavLink>
+                            <div class="account d-flex align-items-center">
+                            <NavLink class="nav-link" href="/products">Products</NavLink>
+                            <p class="text-white mb-0">|</p>
+                            <NavLink class="nav-link" href="/orders/create">Order</NavLink>
+                            </div>
                         </NotAuthorized>
                     </AuthorizeView>
                 </li>
@@ -55,10 +63,14 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
+
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    
+
 
     private void CollapseNavMenu()
     {

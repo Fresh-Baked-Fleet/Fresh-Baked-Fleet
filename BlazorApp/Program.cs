@@ -6,10 +6,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Globalization;
 
 LoadLocalEnv();
 
 var builder = WebApplication.CreateBuilder(args);
+
+var cultureInfo = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -34,15 +39,25 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 })
+// .AddGoogle(options =>
+//{
+//        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+//     ?? throw new InvalidOperationException("Google Client ID is missing.");
+
+//       options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+//        ?? throw new InvalidOperationException("Google Client Secret is missing.");
+//})
+    .AddIdentityCookies();
+
+builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
-        ?? throw new InvalidOperationException("Google Client ID is missing.");
+       options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+    ?? throw new InvalidOperationException("Google Client ID is missing.");
 
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
-        ?? throw new InvalidOperationException("Google Client Secret is missing.");
-    })
-    .AddIdentityCookies();
+      options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+       ?? throw new InvalidOperationException("Google Client Secret is missing.");
+    });
 
 builder.Services.AddAuthorizationBuilder();
 builder.Services.AddCascadingAuthenticationState();
