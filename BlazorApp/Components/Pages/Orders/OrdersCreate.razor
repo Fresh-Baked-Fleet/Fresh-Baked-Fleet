@@ -1,111 +1,295 @@
 @page "/orders/create"
+
+@attribute [Authorize]
+
 @using BlazorApp.Models
 
 @using BlazorApp.Services
+
 @inject ProductService ProductService
+
+@inject OrderCartService Cart
+
+@inject NavigationManager Navigation
+
 @rendermode InteractiveServer
+
+@implements IDisposable
+
+
 
 <PageTitle>Create Order</PageTitle>
 
+
+
 <div class="orders">
-<h3>Create Order</h3>
 
-<select class="product-select" @bind="SelectedProductId">
-   
-    @foreach (var p in products)
+    <h3>Create Order</h3>
+
+
+
+    <select class="product-select" @bind="SelectedProductId">
+
+
+
+        @foreach (var p in products)
+
+        {
+
+            <option value="@p.Id">@p.Name</option>
+
+        }
+
+    </select>
+
+
+
+    <input type="number" min="1" @bind="quantity" />
+
+
+
+    <button @onclick="AddItem">Add</button>
+
+
+
+
+
+    <h4>Summary</h4>
+
+    @if (!Cart.Items.Any())
+
     {
-        <option value="@p.Id">@p.Name</option>
+
+        <p class="text-muted">Add at least one item before submitting your order.</p>
+
     }
-</select>
 
-<input type="number" @bind="quantity"/>
+    @foreach (var item in Cart.Items)
 
-<button @onclick="AddItem">Add</button>
+    {
+
+        <div class="card mb-2 p-2 d-flex flex-row align-items-center">
 
 
-<h4>Summary</h4>
-@foreach(var item in cart)
-{
-     <div class="card mb-2 p-2 d-flex flex-row align-items-center">
 
-        <img src="@item.Product.ImagePath"
-             style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />
+            <img src="@item.Product.ImagePath" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />
 
-        <div class="ms-3 flex-grow-1">
-            <h5>@item.Product.Name</h5>
 
-            <p class="mb-1">@item.Product.Description</p>
 
-            <div>
-                <strong>Price:</strong> @item.Product.Price?.ToString("C") <br />
-                <strong>Weight:</strong> @item.Product.Weight kg <br />
-                <strong>Quantity:</strong> @item.Quantity
+            <div class="ms-3 flex-grow-1">
+
+                <h5>@item.Product.Name</h5>
+
+
+
+                <p class="mb-1">@item.Product.Description</p>
+
+
+
+                <div>
+
+                    <strong>Price:</strong> @item.Product.Price?.ToString("C") <br />
+
+                    <strong>Weight:</strong> @item.Product.Weight kg <br />
+
+                    <strong>Quantity:</strong> @item.Quantity
+
+                </div>
+
             </div>
+
+            <button class="delete" @onclick="() => RemoveItem(item)">
+
+                ❌
+
+            </button>
+
+
+
         </div>
-        <button class="delete"
-          @onclick="() => RemoveItem(item)">
-            ❌
-        </button>
 
-    </div>
-}
-<p>Total : @cart.Sum(x=>x.Quantity)</p>
-<button @onclick="SubmitOrder"> Submit Order</button>
+    }
 
-@if(showPopup)
-{
-    <div class="alert alert-success">
-        <h4>Order Created Successfully</h4>
-        <button @onclick="ClosePopup">OK</button>
-    </div>
-}
+    <p>Total : @Cart.Items.Sum(x => x.Quantity)</p>
+
+    @if (!string.IsNullOrEmpty(submitError))
+
+    {
+
+        <div class="alert alert-warning">@submitError</div>
+
+    }
+
+    <button class="submit-order" @onclick="SubmitOrder" disabled="@(!Cart.Items.Any())"
+
+        title="@(Cart.Items.Any() ? null : "Add items to your cart first")">Submit Order</button>
+
+
+
+    @if (showPopup)
+
+    {
+
+        <div class="alert alert-success">
+
+            <h4>Order Created Successfully</h4>
+
+            <button @onclick="ClosePopup">OK</button>
+
+        </div>
+
+    }
+
 </div>
+
 @code {
-    List<Product>products = new ();
-    List<OrderItem>cart = new();
+
+    List<Product> products = new();
+
+
 
     int SelectedProductId = 0;
-    int quantity =1;
+
+    int quantity = 1;
+
     bool showPopup = false;
 
+    string submitError = string.Empty;
+
+
+
+    [SupplyParameterFromQuery(Name = "productId")]
+
+    public int? ProductId { get; set; }
+
+
+
+    [SupplyParameterFromQuery(Name = "quantity")]
+
+    public int? QueryQuantity { get; set; }
+
+
+
     void SubmitOrder()
+
     {
+
+        if (!Cart.Items.Any())
+
+        {
+
+            submitError = "You must add at least one item to your order.";
+
+            return;
+
+        }
+
+
+
+        submitError = string.Empty;
+
         showPopup = true;
 
     }
-    void  ClosePopup()
+
+
+
+    void ClosePopup()
+
     {
+
         showPopup = false;
-        cart.Clear();
+
+        Cart.Clear();
+
     }
+
+
+
     protected override async Task OnInitializedAsync()
+
     {
+
+        Cart.OnChange += HandleCartChanged;
+
         products = await ProductService.GetProductsAsync();
 
+
+
         if (products.Any())
+
         {
+
             SelectedProductId = products.First().Id;
+
         }
-       
-    }
-     void RemoveItem(OrderItem item)
+
+
+
+        if (ProductId.HasValue)
+
         {
-            cart.Remove(item);
+
+            var product = products.FirstOrDefault(p => p.Id == ProductId.Value);
+
+            if (product != null)
+
+            {
+
+                Cart.AddItem(product, QueryQuantity ?? 1);
+
+                SelectedProductId = product.Id;
+
+                Navigation.NavigateTo("/orders/create", replace: true);
+
+            }
+
         }
-   void AddItem()
-   {
-    
 
-    var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
+    }
 
-    if (product == null)
-        return;
 
-    cart.Add(new OrderItem
+
+    void RemoveItem(OrderItem item)
+
     {
-        ProductId = product.Id,
-        Product = product,
-        Quantity = quantity
-    });
+
+        Cart.RemoveItem(item);
+
+    }
+
+
+
+    void AddItem()
+
+    {
+
+        submitError = string.Empty;
+
+
+
+        var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
+
+
+
+        if (product == null)
+
+            return;
+
+
+
+        Cart.AddItem(product, quantity);
+
+    }
+
+
+
+    private void HandleCartChanged() => InvokeAsync(StateHasChanged);
+
+
+
+    public void Dispose() => Cart.OnChange -= HandleCartChanged;
+
 }
-}
+
+

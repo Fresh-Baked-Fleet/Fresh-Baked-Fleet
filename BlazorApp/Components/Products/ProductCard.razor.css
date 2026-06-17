@@ -7,7 +7,17 @@
   transition:
     transform 0.3s ease,
     opacity 0.3s ease;
+  color: inherit;
+}
+
+.product-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
   cursor: pointer;
+}
+
+.product-card-link:hover {
   text-decoration: none;
   color: inherit;
 }
@@ -64,4 +74,8 @@
 
 .unavailable {
   background-color: rgb(59, 1, 1);
+}
+
+.product-card-actions {
+  margin-top: 12px;
 }

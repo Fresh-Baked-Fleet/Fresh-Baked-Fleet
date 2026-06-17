@@ -59,3 +59,16 @@ p{
     font-size: 24px;
 
 }
+
+.submit-order:disabled {
+    background-color: #b8b8b8;
+    color: #f0f0f0;
+    cursor: not-allowed;
+    opacity: 0.65;
+    box-shadow: none;
+}
+
+.submit-order:disabled:hover {
+    background-color: #b8b8b8;
+    transform: none;
+}
