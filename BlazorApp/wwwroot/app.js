@@ -19,3 +19,21 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('blazor:navigated', function() {
     initializeCarousels();
 });
+
+const cartStorageKey = 'freshBakedFleetCart';
+
+window.orderCart = {
+    get: () => {
+        try {
+            return JSON.parse(localStorage.getItem(cartStorageKey) || '[]');
+        } catch {
+            return [];
+        }
+    },
+    set: (items) => {
+        localStorage.setItem(cartStorageKey, JSON.stringify(items ?? []));
+    },
+    clear: () => {
+        localStorage.removeItem(cartStorageKey);
+    }
+};

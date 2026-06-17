@@ -1,4 +1,3 @@
-@rendermode InteractiveServer
 @using BlazorApp.Models
 @using BlazorApp.Services
 @using Microsoft.AspNetCore.Components.Authorization
@@ -7,13 +6,15 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<button type="button"
-        class="add-to-order-btn @CssClass"
-        disabled="@(!Product.Available || isAdding)"
-        @onclick="AddToOrder"
-        @onclick:stopPropagation="true">
-    @(isAdding ? "Adding..." : ButtonText)
-</button>
+<div class="add-to-order-control">
+    <button type="button"
+            class="add-to-order-btn @CssClass"
+            disabled="@(!Product.Available || isAdding)"
+            @onclick="AddToOrder"
+            @onclick:stopPropagation="true">
+        @(isAdding ? "Adding..." : showAdded ? "Added!" : ButtonText)
+    </button>
+</div>
 
 @code {
     [Parameter, EditorRequired]
@@ -26,12 +27,16 @@
     public bool NavigateOnAdd { get; set; } = true;
 
     [Parameter]
+    public string ReturnUrl { get; set; } = "/products";
+
+    [Parameter]
     public string ButtonText { get; set; } = "Add to Order";
 
     [Parameter]
     public string CssClass { get; set; } = string.Empty;
 
     private bool isAdding;
+    private bool showAdded;
 
     private async Task AddToOrder()
     {
@@ -41,17 +46,27 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity?.IsAuthenticated != true)
         {
-            var returnUrl = Uri.EscapeDataString($"/orders/create?productId={Product.Id}&quantity={Quantity}");
+            var returnUrl = NavigateOnAdd
+                ? Uri.EscapeDataString($"/orders/create?productId={Product.Id}&quantity={Quantity}")
+                : Uri.EscapeDataString(ReturnUrl);
+
             Navigation.NavigateTo($"/account/login?returnUrl={returnUrl}");
             return;
         }
 
         isAdding = true;
-        Cart.AddItem(Product, Quantity);
+        await Cart.AddItemAsync(Product, Quantity);
 
         if (NavigateOnAdd)
         {
             Navigation.NavigateTo("/orders/create");
+        }
+        else
+        {
+            showAdded = true;
+            StateHasChanged();
+            await Task.Delay(2000);
+            showAdded = false;
         }
 
         isAdding = false;
