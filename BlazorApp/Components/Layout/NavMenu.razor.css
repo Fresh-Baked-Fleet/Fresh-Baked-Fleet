@@ -1,3 +1,8 @@
 .navbar {
     background-color: #2D2420;
 }
+
+.cart-badge {
+    font-size: 0.85em;
+    opacity: 0.9;
+}
