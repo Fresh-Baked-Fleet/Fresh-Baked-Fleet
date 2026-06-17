@@ -36,7 +36,10 @@ else
         <div class="product-order-actions">
             <label for="order-quantity">Quantity</label>
             <input id="order-quantity" type="number" min="1" @bind="orderQuantity" class="order-quantity-input" />
-            <AddToOrderButton Product="product" Quantity="orderQuantity" />
+            <AddToOrderButton Product="product"
+                              Quantity="orderQuantity"
+                              NavigateOnAdd="false"
+                              ReturnUrl="@($"/products/{product.Id}")" />
         </div>
     </div>
 }

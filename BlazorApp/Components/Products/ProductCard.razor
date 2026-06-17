@@ -17,11 +17,30 @@
     </a>
 
     <div class="product-card-actions">
-        <AddToOrderButton Product="Product" />
+        @if (Product.Available)
+        {
+            <label class="quantity-label" for="@($"qty-{Product.Id}")">Qty</label>
+            <input id="@($"qty-{Product.Id}")"
+                   type="number"
+                   class="quantity-input"
+                   min="1"
+                   @bind="quantity" />
+
+            <AddToOrderButton Product="Product"
+                              Quantity="quantity"
+                              NavigateOnAdd="false"
+                              ReturnUrl="/products" />
+        }
+        else
+        {
+            <span class="add-to-order-btn unavailable">Unavailable</span>
+        }
     </div>
 </div>
 
 @code {
     [Parameter]
     public Product Product { get; set; } = default!;
+
+    private int quantity = 1;
 }
