@@ -1,0 +1,59 @@
+@rendermode InteractiveServer
+@using BlazorApp.Models
+@using BlazorApp.Services
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject OrderCartService Cart
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<button type="button"
+        class="add-to-order-btn @CssClass"
+        disabled="@(!Product.Available || isAdding)"
+        @onclick="AddToOrder"
+        @onclick:stopPropagation="true">
+    @(isAdding ? "Adding..." : ButtonText)
+</button>
+
+@code {
+    [Parameter, EditorRequired]
+    public Product Product { get; set; } = default!;
+
+    [Parameter]
+    public int Quantity { get; set; } = 1;
+
+    [Parameter]
+    public bool NavigateOnAdd { get; set; } = true;
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Add to Order";
+
+    [Parameter]
+    public string CssClass { get; set; } = string.Empty;
+
+    private bool isAdding;
+
+    private async Task AddToOrder()
+    {
+        if (!Product.Available || isAdding)
+            return;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated != true)
+        {
+            var returnUrl = Uri.EscapeDataString($"/orders/create?productId={Product.Id}&quantity={Quantity}");
+            Navigation.NavigateTo($"/account/login?returnUrl={returnUrl}");
+            return;
+        }
+
+        isAdding = true;
+        Cart.AddItem(Product, Quantity);
+
+        if (NavigateOnAdd)
+        {
+            Navigation.NavigateTo("/orders/create");
+        }
+
+        isAdding = false;
+    }
+}

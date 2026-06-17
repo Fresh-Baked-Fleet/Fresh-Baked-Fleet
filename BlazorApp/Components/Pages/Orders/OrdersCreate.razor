@@ -1,18 +1,20 @@
 @page "/orders/create"
+@attribute [Authorize]
 @using BlazorApp.Models
 @using BlazorApp.Services
+@using BlazorApp.Data
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
-@using BlazorApp.Data
-
-@attribute [Authorize]
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<User> UserManager
 @inject AppDbContext DbContext
-@inject NavigationManager NavigationManager
 @inject ProductService ProductService
+@inject OrderCartService Cart
+@inject NavigationManager Navigation
+
 @rendermode InteractiveServer
+@implements IDisposable
 
 <PageTitle>Create Order</PageTitle>
 
@@ -40,32 +42,36 @@
         </div>
     </div>
 
-
     <h4 style="color: #6B4E31;" class="mt-5">Order Summary</h4>
     <hr style="border-color: #E0DCD3;" />
 
-    @if (!cart.Any())
+    @if (!Cart.Items.Any())
     {
         <p class="text-muted fst-italic">Your cart is empty. Add some items above to get started!</p>
     }
+
+    @if (!string.IsNullOrEmpty(submitError))
+    {
+        <div class="alert shadow-sm mb-4" style="background-color: #fff; border-left: 4px solid #C06C5B; color: #4A3B32;">
+            <i class="bi bi-exclamation-triangle-fill me-2" style="color: #C06C5B;"></i> @submitError
+        </div>
+    }
     else if (!string.IsNullOrEmpty(errorMessage))
     {
-    <div class="alert shadow-sm mb-4" style="background-color: #fff; border-left: 4px solid #C06C5B; color: #4A3B32;">
-        <i class="bi bi-exclamation-triangle-fill me-2" style="color: #C06C5B;"></i> @errorMessage
-    </div>
+        <div class="alert shadow-sm mb-4" style="background-color: #fff; border-left: 4px solid #C06C5B; color: #4A3B32;">
+            <i class="bi bi-exclamation-triangle-fill me-2" style="color: #C06C5B;"></i> @errorMessage
+        </div>
     }
 
-    @foreach(var item in cart)
+    @foreach (var item in Cart.Items)
     {
         <div class="bakery-card mb-3 p-3 d-flex flex-row align-items-center shadow-sm">
             <img src="@item.Product.ImagePath"
-                style="width:80px;height:80px;object-fit:cover;border-radius:8px; border: 1px solid #E0DCD3;" />
+                 style="width:80px;height:80px;object-fit:cover;border-radius:8px; border: 1px solid #E0DCD3;" />
 
             <div class="ms-3 flex-grow-1" style="color: #4A3B32;">
                 <h5 class="mb-1" style="color: #6B4E31;">@item.Product.Name</h5>
-
                 <p class="mb-1 small text-muted">@item.Product.Description</p>
-
                 <div class="small mt-2">
                     <strong>Price:</strong> @item.Product.Price?.ToString("C") <span class="mx-2 text-muted">|</span>
                     <strong>Weight:</strong> @item.Product.Weight kg <span class="mx-2 text-muted">|</span>
@@ -75,23 +81,28 @@
             <button class="delete-btn ms-3" @onclick="() => RemoveItem(item)" title="Remove Item">
                 ❌
             </button>
-
         </div>
     }
-    @if (cart.Any())
+
+    @if (Cart.Items.Any())
     {
         <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 p-3 rounded shadow-sm" style="background-color: #fff; border: 1px solid #E0DCD3;">
             <div>
-                <h6 class="mb-1 text-muted">Total Items: @cart.Sum(x => x.Quantity)</h6>
+                <h6 class="mb-1 text-muted">Total Items: @Cart.Items.Sum(x => x.Quantity)</h6>
                 <h4 class="mb-0" style="color: #4A3B32;">
-                    Order Total: <strong style="color: #6B4E31;">@cart.Sum(x => (x.Product.Price ?? 0m) * x.Quantity).ToString("C")</strong>
+                    Order Total: <strong style="color: #6B4E31;">@Cart.Items.Sum(x => (x.Product.Price ?? 0m) * x.Quantity).ToString("C")</strong>
                 </h4>
             </div>
-            <button class="btn btn-bakery-primary btn-lg px-4 mt-3 mt-sm-0" @onclick="SubmitOrder">Submit Order</button>
+            <button class="btn btn-bakery-primary btn-lg px-4 mt-3 mt-sm-0"
+                    @onclick="SubmitOrder"
+                    disabled="@(!Cart.Items.Any())"
+                    title="@(Cart.Items.Any() ? null : "Add items to your cart first")">
+                Submit Order
+            </button>
         </div>
     }
 
-    @if(showPopup)
+    @if (showPopup)
     {
         <div class="bakery-alert mt-4 shadow-sm">
             <h4 style="color: #4A3B32; margin-bottom: 5px;">Order Created Successfully!</h4>
@@ -107,87 +118,112 @@
 </div>
 
 @code {
-    List<Product>products = new ();
-    List<OrderItem>cart = new();
+    List<Product> products = new();
+    string? errorMessage;
+    string submitError = string.Empty;
+    int SelectedProductId;
+    int quantity = 1;
+    bool showPopup;
 
-    private string? errorMessage;
+    [SupplyParameterFromQuery(Name = "productId")]
+    public int? ProductId { get; set; }
 
-    int SelectedProductId = 0;
-    int quantity =1;
-    bool showPopup = false;
+    [SupplyParameterFromQuery(Name = "quantity")]
+    public int? QueryQuantity { get; set; }
 
     async Task SubmitOrder()
     {
-        if (!cart.Any()) return;
+        if (!Cart.Items.Any())
+        {
+            submitError = "You must add at least one item to your order.";
+            return;
+        }
+
+        submitError = string.Empty;
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = await UserManager.GetUserAsync(authState.User);
 
-        if (user != null)
+        if (user == null)
+            return;
+
+        try
         {
-            try
-            {
-                errorMessage = null;
+            errorMessage = null;
 
-                var newOrder = new Order
+            var newOrder = new Order
+            {
+                UserId = user.Id,
+                CreatedAt = DateTime.UtcNow,
+                Status = OrderStatus.Pending,
+                Items = Cart.Items.Select(item => new OrderItem
                 {
-                    UserId = user.Id,
-                    CreatedAt = DateTime.UtcNow,
-                    Status = OrderStatus.Pending,
-                    Items = cart.Select(item => new OrderItem
-                    {
-                        ProductId = item.ProductId,
-                        Quantity = item.Quantity
-                    }).ToList()
-                };
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity
+                }).ToList()
+            };
 
-                DbContext.Orders.Add(newOrder);
-                await DbContext.SaveChangesAsync();
+            DbContext.Orders.Add(newOrder);
+            await DbContext.SaveChangesAsync();
 
-                showPopup = true;
-            }
-            catch (Exception)
-            {
-                errorMessage = "We couldn't process your order at the moment due to a database connection issue. Please try again.";
-            }
+            showPopup = true;
         }
-
+        catch (Exception)
+        {
+            errorMessage = "We couldn't process your order at the moment due to a database connection issue. Please try again.";
+        }
     }
-    void  ClosePopup()
+
+    void ClosePopup()
     {
         showPopup = false;
-        cart.Clear();
+        Cart.Clear();
     }
+
     void GoToAccount()
     {
-        NavigationManager.NavigateTo("/account");
+        Navigation.NavigateTo("/account");
     }
+
     protected override async Task OnInitializedAsync()
     {
+        Cart.OnChange += HandleCartChanged;
         products = await ProductService.GetProductsAsync();
 
         if (products.Any())
         {
             SelectedProductId = products.First().Id;
         }
-       
+
+        if (ProductId.HasValue)
+        {
+            var product = products.FirstOrDefault(p => p.Id == ProductId.Value);
+            if (product != null)
+            {
+                Cart.AddItem(product, QueryQuantity ?? 1);
+                SelectedProductId = product.Id;
+                Navigation.NavigateTo("/orders/create", replace: true);
+            }
+        }
     }
+
     void RemoveItem(OrderItem item)
     {
-        cart.Remove(item);
+        Cart.RemoveItem(item);
     }
+
     void AddItem()
     {
-        var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
+        submitError = string.Empty;
 
+        var product = products.FirstOrDefault(x => x.Id == SelectedProductId);
         if (product == null)
             return;
 
-        cart.Add(new OrderItem
-        {
-            ProductId = product.Id,
-            Product = product,
-            Quantity = quantity
-        });
+        Cart.AddItem(product, quantity);
     }
+
+    private void HandleCartChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Cart.OnChange -= HandleCartChanged;
 }
